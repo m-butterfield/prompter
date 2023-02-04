@@ -301,6 +301,11 @@ chrome-trace-event@^1.0.2:
   resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.3.tgz#1015eced4741e15d06664a957dbbf50d041e26ac"
   integrity sha512-p3KULyQg4S7NIHixdwbGX+nFHkoBiA4YQmyWtjb8XngSKV124nJmRysgAeujbUVb15vh+RvFUfCPqU7rXk+hZg==
 
+chrome-types@^0.1.170:
+  version "0.1.170"
+  resolved "https://registry.yarnpkg.com/chrome-types/-/chrome-types-0.1.170.tgz#2ed1b5fa75fc9922c4ab7e990d5a7da572599b3d"
+  integrity sha512-ujDV4ajkqPxjn1R71lfeu2ziybliy9x/kJYA3mqwuK9GYZcjLnwwsulimOcch7o7svyCRD4691qhQwYiovrVNg==
+
 clone-deep@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/clone-deep/-/clone-deep-4.0.1.tgz#c19fd9bdbbf85942b4fd979c84dcf7d5f07c2387"

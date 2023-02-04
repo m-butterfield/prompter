@@ -9,6 +9,7 @@
   "author": "Matt Butterfield <matt@mattbutterfield.com>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "chrome-types": "^0.1.170",
     "prettier": "^2.8.3",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
