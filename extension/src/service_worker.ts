@@ -9,6 +9,6 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "prompter") {
-    console.log("prompter clicked");
+    chrome.tabs.sendMessage(tab.id, { greeting: "hello" });
   }
 });
