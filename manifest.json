@@ -3,13 +3,22 @@
   "name": "Prompter",
   "description": "Complete text inputs using ChatGPT",
   "version": "1.0",
+  "permissions": [
+    "contextMenus"
+  ],
   "content_scripts": [
     {
-      "js": ["dist/content_script.bundle.js"],
-      "matches": [
-        "https://developer.chrome.com/docs/extensions/*",
-        "https://developer.chrome.com/docs/webstore/*"
-      ]
+      "js": ["dist/content.bundle.js"],
+      "matches": ["*://*/*"]
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "dist/service_worker.bundle.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

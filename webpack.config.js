@@ -2,7 +2,8 @@ const path = require("path");
 
 module.exports = {
   entry: {
-    content_script: "./src/content_script.ts",
+    content: "./src/content.ts",
+    service_worker: "./src/service_worker.ts",
   },
   devtool: "inline-source-map",
   module: {
