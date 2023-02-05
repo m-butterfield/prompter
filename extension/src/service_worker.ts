@@ -7,8 +7,16 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+let apiURL = "";
+
+chrome.management.getSelf((result) => {
+  if (result.installType === "development") {
+    apiURL = "http://localhost:8000";
+  }
+});
+
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "prompter") {
-    chrome.tabs.sendMessage(tab.id, { greeting: "hello" });
+    chrome.tabs.sendMessage(tab.id, { apiURL });
   }
 });
