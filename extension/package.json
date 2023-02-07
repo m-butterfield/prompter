@@ -2,13 +2,15 @@
   "scripts": {
     "dev": "webpack --mode development --watch",
     "build": "rm -rf dist && webpack --mode production",
-    "lint": "prettier --write src/**/*.ts"
+    "lint": "prettier --write src/**/*.ts",
+    "zip": "zip -r prompter.zip dist icons manifest.json"
   },
   "name": "prompter",
   "version": "1.0.0",
   "author": "Matt Butterfield <matt@mattbutterfield.com>",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@picocss/pico": "^1.5.7",
     "@types/chrome": "^0.0.212",
     "prettier": "^2.8.3",
     "ts-loader": "^9.4.2",

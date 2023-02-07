@@ -13,7 +13,7 @@ export class ChatResolver {
       model: 'text-curie-001',
       prompt: prompt,
       temperature: 0.5,
-      max_tokens: 128,
+      max_tokens: 1028,
     });
     return response.data.choices[0].text.trim();
   }

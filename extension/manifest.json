@@ -9,6 +9,7 @@
   "content_scripts": [
     {
       "js": ["dist/content.bundle.js"],
+      "css": [ "css/pico.css" ],
       "matches": ["*://*/*"]
     }
   ],

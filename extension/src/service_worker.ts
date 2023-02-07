@@ -1,7 +1,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "prompter",
-    title: "Add prompted text",
+    title: "Add Prompter Text",
     type: "normal",
     contexts: ["editable"],
   });
