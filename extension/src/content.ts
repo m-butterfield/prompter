@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 const openModal = () => {
   const shadowWrapper = document.createElement("div");
-  shadowWrapper.id = "prompter-dialog";
+  shadowWrapper.id = "prompter-wrapper";
   shadowWrapper.setAttribute(
     "style",
     `
@@ -49,10 +49,11 @@ const openModal = () => {
     width: 80%;
   `
   );
-
-  modal.id = "myModal";
+  modal.innerHTML = `
+    <label>Input prompt:</label><input />
+    <input type="submit" />
+  `;
   shadowRoot.appendChild(modal);
-  // Whatever you need to do to create your modal...
-  modal.innerText = "Hello world";
+
   document.body.appendChild(shadowWrapper);
 };
