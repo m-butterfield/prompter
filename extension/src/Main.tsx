@@ -82,7 +82,9 @@ export const Main = ({ apiURL }: MainProps) => {
           ></TextField>
           <Divider />
           <DialogContentText>Result:</DialogContentText>
-          <DialogContentText>{promptResult}</DialogContentText>
+          <DialogContentText>
+            {loading ? "Loading..." : promptResult}
+          </DialogContentText>
           <DialogActions>
             <Button
               onClick={() => {
@@ -97,7 +99,7 @@ export const Main = ({ apiURL }: MainProps) => {
                 setModalOpen(false);
               }}
             >
-              Cancel
+              Close
             </Button>
           </DialogActions>
         </Stack>
