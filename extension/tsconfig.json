@@ -2,8 +2,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "noImplicitAny": true,
+    "sourceMap": true,
     "module": "es2020",
     "target": "es6",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "allowSyntheticDefaultImports": true,
     "baseUrl": "src"
   }
 }

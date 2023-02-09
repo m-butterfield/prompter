@@ -9,7 +9,8 @@
   "content_scripts": [
     {
       "js": ["dist/content.bundle.js"],
-      "matches": ["*://*/*"]
+      "matches": ["*://*/*"],
+      "run_at": "document_start"
     }
   ],
   "background": {
