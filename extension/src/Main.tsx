@@ -11,11 +11,12 @@ import { setGlobalModalOpen } from "utils";
 
 type MainProps = {
   apiURL: string;
+  selectionText: string;
 };
 
-export const Main = ({ apiURL }: MainProps) => {
+export const Main = ({ apiURL, selectionText }: MainProps) => {
   const [modalOpen, setModalOpen] = useState(true);
-  const [promptInput, setPromptInput] = useState("");
+  const [promptInput, setPromptInput] = useState(selectionText);
   const [error, setError] = useState("");
   const maxLength = 4096;
   const [loading, setLoading] = useState(false);

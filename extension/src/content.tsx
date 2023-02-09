@@ -17,11 +17,11 @@ const stopKeyEvents = (e: KeyboardEvent) => {
 document.addEventListener("keydown", stopKeyEvents);
 document.addEventListener("keypress", stopKeyEvents);
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
-  openModal(request.apiURL)
+chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) =>
+  openModal(request.apiURL, request.selectionText)
 );
 
-const openModal = (apiURL: string) => {
+const openModal = (apiURL: string, selectionText: string) => {
   setGlobalModalOpen(true);
 
   const root = document.createElement("div");
@@ -45,7 +45,7 @@ const openModal = (apiURL: string) => {
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Main apiURL={apiURL} />
+        <Main apiURL={apiURL} selectionText={selectionText} />
       </ThemeProvider>
     </CacheProvider>
   );

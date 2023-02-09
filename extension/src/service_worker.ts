@@ -1,9 +1,15 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "prompter",
-    title: "Add Prompter Text",
+    title: "Open Prompter",
     type: "normal",
     contexts: ["editable"],
+  });
+  chrome.contextMenus.create({
+    id: "prompter-copy",
+    title: "Copy to Prompter Input",
+    type: "normal",
+    contexts: ["selection"],
   });
 });
 
@@ -18,7 +24,12 @@ chrome.management.getSelf((result) => {
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "prompter") {
-    chrome.tabs.sendMessage(tab.id, { apiURL });
+  debugger;
+  if (info.menuItemId === "prompter" || info.menuItemId === "prompter-copy") {
+    const selectionText = info.selectionText;
+    chrome.tabs.sendMessage(tab.id, {
+      apiURL,
+      selectionText: selectionText ? selectionText : "",
+    });
   }
 });
