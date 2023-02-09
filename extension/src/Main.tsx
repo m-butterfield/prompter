@@ -84,7 +84,13 @@ export const Main = ({ apiURL }: MainProps) => {
           <DialogContentText>Result:</DialogContentText>
           <DialogContentText>{promptResult}</DialogContentText>
           <DialogActions>
-            <Button onClick={() => {}}>Copy to Clipboard</Button>
+            <Button
+              onClick={() => {
+                navigator.clipboard.writeText(promptResult);
+              }}
+            >
+              Copy to Clipboard
+            </Button>
             <Button
               onClick={() => {
                 setGlobalModalOpen(false);
