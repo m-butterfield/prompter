@@ -1,6 +1,5 @@
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
-import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { Main } from "Main";
 import React from "react";
@@ -44,7 +43,6 @@ const openModal = (apiURL: string, selectionText: string) => {
   createRoot(shadowRootElement).render(
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
         <Main apiURL={apiURL} selectionText={selectionText} />
       </ThemeProvider>
     </CacheProvider>
