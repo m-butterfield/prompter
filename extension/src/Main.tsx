@@ -40,6 +40,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
           <TextField
             multiline
             fullWidth
+            autoFocus // this doesn't work for some reason...
             disabled={loading}
             label="Enter prompt"
             value={promptInput}

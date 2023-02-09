@@ -25,7 +25,7 @@ const openModal = (apiURL: string, selectionText: string) => {
   setGlobalModalOpen(true);
 
   const root = document.createElement("div");
-  const shadowRoot = root.attachShadow({ mode: "closed" });
+  const shadowRoot = root.attachShadow({ mode: "open" });
   document.body.appendChild(root);
 
   const styleElement = document.createElement("style");
