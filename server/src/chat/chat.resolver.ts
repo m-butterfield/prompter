@@ -12,8 +12,8 @@ export class ChatResolver {
     const response = await openai.createCompletion({
       model: 'text-curie-001',
       prompt: prompt,
-      temperature: 0.5,
-      max_tokens: 1028,
+      temperature: 0.4,
+      max_tokens: 128,
     });
     return response.data.choices[0].text.trim();
   }

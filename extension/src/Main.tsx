@@ -22,6 +22,29 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
 
+  const getResponse = () => {
+    setLoading(true);
+    fetch(`${apiURL}/graphql`, {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify({
+        operationName: "tryChat",
+        variables: { prompt: promptInput },
+        query:
+          "query tryChat($prompt: String!) {\n  chat(prompt: $prompt)\n}\n",
+      }),
+    })
+      .then((resp) => resp.json())
+      .then((resp) => {
+        setPromptResult(resp.data.chat);
+        setLoading(false);
+      })
+      .catch(() => {
+        setPromptResult("Error fetching result... please try again later.");
+        setLoading(false);
+      });
+  };
+
   return (
     <Dialog
       fullWidth
@@ -30,6 +53,12 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
       onClose={() => {
         setGlobalModalOpen(false);
         setModalOpen(false);
+      }}
+      onKeyDown={(ev) => {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          getResponse();
+        }
       }}
     >
       <DialogContent>
@@ -46,33 +75,6 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
             value={promptInput}
             error={error.length > 0}
             helperText={error}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                setLoading(true);
-                fetch(`${apiURL}/graphql`, {
-                  method: "POST",
-                  headers: new Headers({ "Content-Type": "application/json" }),
-                  body: JSON.stringify({
-                    operationName: "tryChat",
-                    variables: { prompt: promptInput },
-                    query:
-                      "query tryChat($prompt: String!) {\n  chat(prompt: $prompt)\n}\n",
-                  }),
-                })
-                  .then((resp) => resp.json())
-                  .then((resp) => {
-                    setPromptResult(resp.data.chat);
-                    setLoading(false);
-                  })
-                  .catch(() => {
-                    setPromptResult(
-                      "Error fetching result... please try again later."
-                    );
-                    setLoading(false);
-                  });
-              }
-            }}
             onChange={(e) => {
               if (e.target.value.length > maxLength) {
                 setError(`too long, max ${maxLength} characters`);
