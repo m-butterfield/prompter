@@ -1,20 +1,18 @@
-# Base image
-FROM node:18
+# Bases for building and running the app
+FROM golang:1.19-alpine AS builder-base
+WORKDIR /go/src/github.com/m-butterfield/prompter/server
+COPY go.* ./
+RUN go mod download
+ADD . /go/src/github.com/m-butterfield/prompter/server
 
-# Create app directory
-WORKDIR /usr/src/app
+FROM alpine:latest AS runner-base
+WORKDIR /root
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY package.json yarn.lock ./
+# Run build
+FROM builder-base AS server-builder
+RUN go build -o bin/server cmd/server/main.go
 
-# Install app dependencies
-RUN yarn install
-
-# Bundle app source
-COPY . .
-
-# Creates a "dist" folder with the production build
-RUN yarn build
-
-# Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+# Copy the built executable to the runner
+FROM runner-base AS server
+COPY --from=server-builder /go/src/github.com/m-butterfield/prompter/server/bin/ ./bin/
+CMD ["bin/server"]

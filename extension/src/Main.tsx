@@ -24,25 +24,23 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
 
   const getResponse = () => {
     setLoading(true);
-    fetch(`${apiURL}/graphql`, {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({
-        operationName: "tryChat",
-        variables: { prompt: promptInput },
-        query:
-          "query tryChat($prompt: String!) {\n  chat(prompt: $prompt)\n}\n",
-      }),
-    })
-      .then((resp) => resp.json())
-      .then((resp) => {
-        setPromptResult(resp.data.chat);
+    setPromptResult("");
+    const source = new EventSource(
+      `${apiURL}/chat?prompt=${encodeURIComponent(promptInput)}`
+    );
+    let result = "";
+    source.onmessage = (event) => {
+      result += event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the message returned, so they are wrapped in quotes now on the BE
+      setPromptResult(result);
+    };
+    source.onerror = (event) => {
+      if (event.eventPhase == EventSource.CLOSED) {
         setLoading(false);
-      })
-      .catch(() => {
-        setPromptResult("Error fetching result... please try again later.");
-        setLoading(false);
-      });
+        source.close();
+      } else {
+        setPromptResult("Error, please try again later...");
+      }
+    };
   };
 
   return (
@@ -86,9 +84,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
           ></TextField>
           <Divider />
           <DialogContentText>Result:</DialogContentText>
-          <DialogContentText>
-            {loading ? "Loading..." : promptResult}
-          </DialogContentText>
+          <DialogContentText>{promptResult}</DialogContentText>
           <DialogActions>
             <Button
               onClick={() => {
