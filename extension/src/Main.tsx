@@ -87,7 +87,9 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
             onKeyDown={(ev) => {
               if (ev.key === "Enter") {
                 ev.preventDefault();
-                getResponse();
+                if (!error) {
+                  getResponse();
+                }
               }
             }}
             onChange={(e) => {
