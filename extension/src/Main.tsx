@@ -31,7 +31,12 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     );
     let result = "";
     source.onmessage = (event) => {
-      result += event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the message returned, so they are wrapped in quotes now on the BE
+      const msg = event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the message returned, so they are wrapped in quotes now on the BE
+      // skip leading spaces
+      if (result === "" && msg === "\n") {
+        return;
+      }
+      result += msg;
       setPromptResult(result);
     };
     source.onerror = (event) => {
@@ -103,7 +108,9 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
           ></TextField>
           <Divider />
           <DialogContentText>Result:</DialogContentText>
-          <DialogContentText>{promptResult}</DialogContentText>
+          <DialogContentText whiteSpace="pre-wrap">
+            {promptResult}
+          </DialogContentText>
           <DialogActions>
             <Button
               ref={(el) => (copyButtonRef.current = el)}
