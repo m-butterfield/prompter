@@ -6,7 +6,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { setGlobalModalOpen } from "utils";
 
 type MainProps = {
@@ -21,6 +21,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
   const maxLength = 4096;
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
+  const copyButtonRef = useRef<HTMLButtonElement>();
 
   const getResponse = () => {
     setLoading(true);
@@ -36,6 +37,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     source.onerror = (event) => {
       if (event.eventPhase == EventSource.CLOSED) {
         setLoading(false);
+        copyButtonRef.current.focus();
         source.close();
       } else {
         setPromptResult("Error, please try again later...");
@@ -43,10 +45,10 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     };
   };
 
-  const inputRef = React.useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>();
 
   // hack to ensure input has focus since we are in a shadow dom, see inputRef on TextField below
-  React.useEffect(() => {
+  useEffect(() => {
     const timeout = setTimeout(() => {
       inputRef.current.focus();
     }, 100);
@@ -65,12 +67,6 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
         setGlobalModalOpen(false);
         setModalOpen(false);
       }}
-      onKeyDown={(ev) => {
-        if (ev.key === "Enter") {
-          ev.preventDefault();
-          getResponse();
-        }
-      }}
     >
       <DialogContent>
         <Stack direction="column" spacing={2} width="100%" m="auto">
@@ -88,6 +84,12 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
             value={promptInput}
             error={error.length > 0}
             helperText={error}
+            onKeyDown={(ev) => {
+              if (ev.key === "Enter") {
+                ev.preventDefault();
+                getResponse();
+              }
+            }}
             onChange={(e) => {
               if (e.target.value.length > maxLength) {
                 setError(`too long, max ${maxLength} characters`);
@@ -102,6 +104,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
           <DialogContentText>{promptResult}</DialogContentText>
           <DialogActions>
             <Button
+              ref={(el) => (copyButtonRef.current = el)}
               onClick={() => {
                 navigator.clipboard.writeText(promptResult);
               }}
