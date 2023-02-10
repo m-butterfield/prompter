@@ -61,3 +61,46 @@ func chat(c *gin.Context) {
 		return false
 	})
 }
+
+type variables struct {
+	Prompt string
+}
+
+type ChatRequest struct {
+	Variables variables
+}
+
+type respChat struct {
+	Chat string `json:"chat"`
+}
+
+type Resp struct {
+	Data respChat `json:"data"`
+}
+
+func graphql(c *gin.Context) {
+	var req ChatRequest
+	if err := c.BindJSON(&req); err != nil {
+		lib.InternalError(err, c)
+		return
+	}
+
+	gpt := gogpt.NewClient(os.Getenv("OPENAI_API_KEY"))
+	ctx := context.Background()
+
+	compReq := gogpt.CompletionRequest{
+		Model:     gogpt.GPT3TextCurie001,
+		MaxTokens: 20,
+		Prompt:    req.Variables.Prompt,
+	}
+	resp, err := gpt.CreateCompletion(ctx, compReq)
+	if err != nil {
+		return
+	}
+
+	c.JSON(200, Resp{
+		Data: respChat{
+			Chat: resp.Choices[0].Text,
+		},
+	})
+}
