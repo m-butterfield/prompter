@@ -1,3 +1,9 @@
 dist
 node_modules
 prompter.zip
+bin
+dump.sql
+.terraform
+*.tfstate
+secrets.tfvars
+*.log
