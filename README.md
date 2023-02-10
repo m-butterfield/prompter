@@ -22,14 +22,6 @@ Change to 'server' directory:
 
     cd server
 
-Install dependencies:
-
-    yarn
-
 ## Run the app
 
-    yarn run start:dev
-
-or
-
-    yarn run start:prod
+    make run-server
