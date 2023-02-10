@@ -43,6 +43,19 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     };
   };
 
+  const inputRef = React.useRef<HTMLInputElement>();
+
+  // hack to ensure input has focus since we are in a shadow dom, see inputRef on TextField below
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      inputRef.current.focus();
+    }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
     <Dialog
       fullWidth
@@ -67,7 +80,9 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
           <TextField
             multiline
             fullWidth
-            autoFocus // this doesn't work for some reason...
+            inputRef={(el) => {
+              inputRef.current = el;
+            }}
             disabled={loading}
             label="Enter prompt"
             value={promptInput}
