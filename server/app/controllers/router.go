@@ -14,9 +14,12 @@ func router() (*gin.Engine, error) {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST"},
+		AllowHeaders: []string{"Content-Type"},
 	}))
 
 	r.GET("/chat", chat)
+	r.POST("/graphql", graphql)
 
 	return r, nil
 }
