@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/prompter/server/app/lib"
 	gogpt "github.com/sashabaranov/go-gpt3"
@@ -56,7 +55,6 @@ func chat(c *gin.Context) {
 	}()
 	c.Stream(func(w io.Writer) bool {
 		if msg, ok := <-chanStream; ok {
-			fmt.Print(msg)
 			c.SSEvent("message", "\""+msg+"\"") // somehow leading whitespace was being stripped from the msg, wrap message in quotes to avoid this and strip them on the FE
 			return true
 		}
