@@ -31,7 +31,7 @@ module.exports = {
     modules: [
       path.resolve(__dirname, "node_modules"),
       path.resolve(__dirname, "app", "static", "ts"),
-    ]
+    ],
   },
   output: {
     filename: "[name].bundle.js",
