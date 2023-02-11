@@ -3,7 +3,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Main from "app/Main";
 import { theme } from "app/theme";
-import React, { createContext, useState } from "react";
+import React, { createContext } from "react";
 import { createRoot } from "react-dom/client";
 
 type AppState = {

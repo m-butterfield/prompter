@@ -1,12 +1,8 @@
-import { useQuery } from "@apollo/client";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
 // import AppRoutes from "app/AppRoutes";
-// import { Header } from "app/Header";
-import { AppContext } from "app/index";
 // import { ME } from "app/queries";
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 
 const Main = () => {

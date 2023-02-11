@@ -7,6 +7,7 @@
     "@graphql-codegen/typescript": "^3.0.0",
     "@types/react-dom": "^18.0.10",
     "prettier": "^2.8.4",
+    "prettier-plugin-organize-imports": "^3.2.2",
     "ts-loader": "^9.4.2",
     "typescript": "^4.9.5",
     "webpack": "^5.75.0",
