@@ -11,7 +11,7 @@ import (
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/graph/generated"
 	"github.com/m-butterfield/prompter/server/app/graph/model"
-	oauth2 "google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/oauth2/v2"
 )
 
 // CreateUser is the resolver for the createUser field.
