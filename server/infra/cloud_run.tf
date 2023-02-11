@@ -65,7 +65,7 @@ resource "google_cloud_run_service_iam_policy" "noauth" {
 
 resource "google_cloud_run_domain_mapping" "prompter" {
   location = var.default_region
-  name     = "prompter.mattbutterfield.com"
+  name     = "getprompter.app"
 
   metadata {
     namespace = var.project
