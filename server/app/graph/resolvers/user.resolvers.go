@@ -23,6 +23,11 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	panic(fmt.Errorf("not implemented: Logout - logout"))
 }
 
+// Login is the resolver for the login field.
+func (r *mutationResolver) Login(ctx context.Context, credential string) (*data.User, error) {
+	panic(fmt.Errorf("not implemented: Login - login"))
+}
+
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
 	return nil, nil

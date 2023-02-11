@@ -1,6 +1,8 @@
 import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import CssBaseline from "@mui/material/CssBaseline";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { googleOAuthClientID } from "app/constants";
 import Main from "app/Main";
 import { theme } from "app/theme";
 import { User } from "graphql/types";
@@ -30,8 +32,10 @@ const App = () => {
     <AppContext.Provider value={state}>
       <ApolloProvider client={client}>
         <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Main />
+          <GoogleOAuthProvider clientId={googleOAuthClientID}>
+            <CssBaseline />
+            <Main />
+          </GoogleOAuthProvider>
         </ThemeProvider>
       </ApolloProvider>
     </AppContext.Provider>

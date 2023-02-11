@@ -11,6 +11,7 @@ input UserCreds {
 type Mutation {
   createUser(input: UserCreds!): User!
   logout: Boolean!
+  login(credential: String!): User!
 }
 
 type Query {

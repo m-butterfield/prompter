@@ -15,12 +15,18 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  login: User;
   logout: Scalars['Boolean'];
 };
 
 
 export type MutationCreateUserArgs = {
   input: UserCreds;
+};
+
+
+export type MutationLoginArgs = {
+  credential: Scalars['String'];
 };
 
 export type Query = {
