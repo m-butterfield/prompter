@@ -17,7 +17,7 @@ docker-push:
 
 fmt:
 	go fmt ./...
-	yarn prettier --write .
+	yarn prettier --loglevel warn --write .
 	cd infra/ && terraform fmt
 
 generate:

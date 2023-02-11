@@ -31,6 +31,7 @@ func router() (*gin.Engine, error) {
 		AllowHeaders: []string{"Content-Type"},
 	}))
 
+	r.Use(auth)
 	r.NoRoute(index)
 	r.GET("/chat", chat)
 

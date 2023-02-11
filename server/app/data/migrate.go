@@ -6,6 +6,7 @@ func Migrate() error {
 		return err
 	}
 	err = s.db.AutoMigrate(
+		&AccessToken{},
 		&User{},
 	)
 	if err != nil {

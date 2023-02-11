@@ -7,10 +7,11 @@ package resolvers
 import (
 	"context"
 	"fmt"
+
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/graph/generated"
 	"github.com/m-butterfield/prompter/server/app/graph/model"
-	"google.golang.org/api/oauth2/v2"
+	oauth2 "google.golang.org/api/oauth2/v2"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -32,19 +33,34 @@ func (r *mutationResolver) Login(ctx context.Context, credential string) (*data.
 	if err != nil {
 		return nil, err
 	}
-	user := &data.User{
-		Username: tokenInfo.Email,
-	}
-	fmt.Println(r.DS)
-	if err = r.DS.CreateUser(user); err != nil {
+
+	user, err := r.DS.GetUser(tokenInfo.Email)
+	if err != nil {
 		return nil, internalError(err)
 	}
+	if user == nil {
+		user = &data.User{
+			Username: tokenInfo.Email,
+		}
+		if err = r.DS.CreateUser(user); err != nil {
+			return nil, internalError(err)
+		}
+	}
+
+	if err = cookieLogin(ctx, r.DS, user); err != nil {
+		return nil, internalError(err)
+	}
+
 	return user, nil
 }
 
 // Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
-	return nil, nil
+	user, err := loggedInUser(ctx)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	return user, nil
 }
 
 // GetUser is the resolver for the getUser field.
