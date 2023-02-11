@@ -7,10 +7,10 @@ package resolvers
 import (
 	"context"
 	"fmt"
-
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/graph/generated"
 	"github.com/m-butterfield/prompter/server/app/graph/model"
+	"google.golang.org/api/oauth2/v2"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -25,7 +25,21 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, credential string) (*data.User, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	oauth2Service, err := oauth2.NewService(ctx)
+	tokenInfoCall := oauth2Service.Tokeninfo()
+	tokenInfoCall.IdToken(credential)
+	tokenInfo, err := tokenInfoCall.Do()
+	if err != nil {
+		return nil, err
+	}
+	user := &data.User{
+		Username: tokenInfo.Email,
+	}
+	fmt.Println(r.DS)
+	if err = r.DS.CreateUser(user); err != nil {
+		return nil, internalError(err)
+	}
+	return user, nil
 }
 
 // Me is the resolver for the me field.

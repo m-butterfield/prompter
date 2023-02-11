@@ -19,7 +19,7 @@ chrome.management.getSelf((result) => {
   if (result.installType === "development") {
     apiURL = "http://localhost:8000";
   } else {
-    apiURL = "https://prompter-6wg57m4u3a-uc.a.run.app";
+    apiURL = "https://getprompter.app";
   }
 });
 

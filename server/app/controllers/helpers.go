@@ -22,11 +22,12 @@ var (
 )
 
 func Run(port string) error {
-	r, err := router()
-	if err != nil {
+	var err error
+	if ds, err = data.Connect(); err != nil {
 		return err
 	}
-	if ds, err = data.Connect(); err != nil {
+	r, err := router()
+	if err != nil {
 		return err
 	}
 	return r.Run(net.JoinHostPort("", port))
