@@ -18,6 +18,16 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 	panic(fmt.Errorf("not implemented: CreateUser - createUser"))
 }
 
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
+	panic(fmt.Errorf("not implemented: Logout - logout"))
+}
+
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
+	return nil, nil
+}
+
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, username string) (*data.User, error) {
 	panic(fmt.Errorf("not implemented: GetUser - getUser"))

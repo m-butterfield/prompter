@@ -15,6 +15,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  logout: Scalars['Boolean'];
 };
 
 
@@ -24,7 +25,14 @@ export type MutationCreateUserArgs = {
 
 export type Query = {
   __typename?: 'Query';
+  chat: Scalars['String'];
   getUser: User;
+  me?: Maybe<User>;
+};
+
+
+export type QueryChatArgs = {
+  prompt: Scalars['String'];
 };
 
 
