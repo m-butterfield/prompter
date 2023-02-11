@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin/render"
+	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/lib"
 	"github.com/m-butterfield/prompter/server/app/static"
 	"html/template"
@@ -17,11 +18,15 @@ var (
 	baseTemplatePaths = []string{
 		templatePath + "base.gohtml",
 	}
+	ds data.Store
 )
 
 func Run(port string) error {
 	r, err := router()
 	if err != nil {
+		return err
+	}
+	if ds, err = data.Connect(); err != nil {
 		return err
 	}
 	return r.Run(net.JoinHostPort("", port))

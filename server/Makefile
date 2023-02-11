@@ -4,6 +4,8 @@ deployservercommand := $(cloudrunbasecommand) --image=gcr.io/mattbutterfield/pro
 terraformbasecommand := cd infra && terraform
 terraformvarsarg := -var-file=secrets.tfvars
 
+export DB_SOCKET=host=localhost dbname=prompter
+
 deploy: docker-build docker-push
 	$(deployservercommand)
 
@@ -17,6 +19,18 @@ fmt:
 	go fmt ./...
 	yarn prettier --write .
 	cd infra/ && terraform fmt
+
+generate:
+	go run github.com/99designs/gqlgen generate
+	yarn graphql-codegen
+
+reset-db:
+	dropdb --if-exists prompter
+	createdb prompter
+	psql -f dump.sql prompter
+
+migrate:
+	go run cmd/migrate/main.go
 
 run-server: export USE_LOCAL_FS=true
 run-server: export SQL_LOGS=true
@@ -40,7 +54,13 @@ tf-apply:
 tf-refresh:
 	$(terraformbasecommand) apply $(terraformvarsarg) -refresh-only
 
+test: export DB_SOCKET=host=localhost dbname=prompter_test
 test:
+	dropdb --if-exists prompter_test
+	createdb prompter_test
+	psql prompter_test -c 'CREATE EXTENSION citext'
+	psql prompter_test -c 'CREATE EXTENSION "uuid-ossp"'
+	go run cmd/migrate/main.go
 	go test -v ./app/...
 
 update-deps:
