@@ -21,7 +21,22 @@ func (r *mutationResolver) CreateUser(ctx context.Context, input model.UserCreds
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	panic(fmt.Errorf("not implemented: Logout - logout"))
+	gctx, err := ginContextFromContext(ctx)
+	if err != nil {
+		return false, internalError(err)
+	}
+	cookie, err := getSessionCookie(gctx.Request)
+	if err != nil {
+		return false, internalError(err)
+	}
+	if cookie == nil {
+		return true, nil
+	}
+	if err := r.DS.DeleteAccessToken(cookie.Value); err != nil {
+		return false, internalError(err)
+	}
+	unsetSessionCookie(gctx.Writer)
+	return true, nil
 }
 
 // Login is the resolver for the login field.

@@ -9,6 +9,7 @@ import (
 	"github.com/m-butterfield/prompter/server/app/lib"
 	"log"
 	"net/http"
+	"time"
 )
 
 func cookieLogin(ctx context.Context, ds data.Store, user *data.User) error {
@@ -58,6 +59,25 @@ func loggedInUser(ctx context.Context) (*data.User, error) {
 		return user, nil
 	}
 	return nil, errors.New("bad user type in context")
+}
+
+func getSessionCookie(r *http.Request) (*http.Cookie, error) {
+	cookie, err := r.Cookie(lib.SessionTokenName)
+	if err != nil {
+		if errors.Is(err, http.ErrNoCookie) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return cookie, nil
+}
+
+func unsetSessionCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    lib.SessionTokenName,
+		Value:   "",
+		Expires: time.Unix(0, 0),
+	})
 }
 
 func internalError(err error) error {
