@@ -22,12 +22,19 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
   const copyButtonRef = useRef<HTMLButtonElement>();
+  const [queryToken, setQueryToken] = useState("");
+
+  useEffect(() => {
+    chrome.storage.sync.get("queryToken", (result) => {
+      setQueryToken(result.queryToken);
+    });
+  }, []);
 
   const getResponse = () => {
     setLoading(true);
     setPromptResult("");
     const source = new EventSource(
-      `${apiURL}/chat?prompt=${encodeURIComponent(promptInput)}`
+      `${apiURL}/chat?p=${encodeURIComponent(promptInput)}&t=${queryToken}`
     );
     let result = "";
     source.onmessage = (event) => {
@@ -92,7 +99,7 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
             onKeyDown={(ev) => {
               if (ev.key === "Enter") {
                 ev.preventDefault();
-                if (!error) {
+                if (!error && promptInput) {
                   getResponse();
                 }
               }

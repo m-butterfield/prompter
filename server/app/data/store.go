@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"os"
+	"time"
 )
 
 func Connect() (Store, error) {
@@ -32,11 +33,14 @@ func getDS() (*ds, error) {
 }
 
 type Store interface {
-	CreateUser(*User) error
-	GetUser(string) (*User, error)
-	CreateAccessToken(*User) (*AccessToken, error)
-	DeleteAccessToken(string) error
-	GetAccessToken(string) (*AccessToken, error)
+	CreateUser(user *User) error
+	GetUser(username string) (*User, error)
+	CreateAccessToken(user *User) (*AccessToken, error)
+	DeleteAccessToken(id string) error
+	GetAccessToken(id string) (*AccessToken, error)
+	GetAccessTokenByQueryToken(queryToken string) (*AccessToken, error)
+	CreateQuery(query *Query) error
+	GetQueryCountForUser(id string, since *time.Time) (int, error)
 }
 
 type ds struct {

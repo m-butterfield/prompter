@@ -30,10 +30,6 @@ window.addEventListener("message", (event) => {
   }
 });
 
-chrome.storage.sync.get("queryToken", (items) => {
-  console.log(items);
-});
-
 const openModal = (apiURL: string, selectionText: string) => {
   setGlobalModalOpen(true);
 

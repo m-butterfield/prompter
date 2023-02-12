@@ -8,6 +8,7 @@ func Migrate() error {
 	err = s.db.AutoMigrate(
 		&AccessToken{},
 		&User{},
+		&Query{},
 	)
 	if err != nil {
 		return err

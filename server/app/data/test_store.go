@@ -1,5 +1,7 @@
 package data
 
+import "time"
+
 type TestStore struct {
 	TestCreateUser             func(*User) error
 	CreateUserCallCount        int
@@ -36,4 +38,16 @@ func (t *TestStore) DeleteAccessToken(id string) error {
 func (t *TestStore) GetAccessToken(id string) (*AccessToken, error) {
 	t.GetAccessTokenCallCount += 1
 	return t.TestGetAccessToken(id)
+}
+
+func (t *TestStore) GetAccessTokenByQueryToken(string) (*AccessToken, error) {
+	panic("Not implemented")
+}
+
+func (t *TestStore) CreateQuery(query *Query) error {
+	panic("Not implemented")
+
+}
+func (t *TestStore) GetQueryCountForUser(id string, since *time.Time) (int, error) {
+	panic("Not implemented")
 }

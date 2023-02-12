@@ -4,19 +4,56 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/lib"
 	gogpt "github.com/sashabaranov/go-gpt3"
 	"io"
 	"os"
+	"time"
 )
 
 func chat(c *gin.Context) {
-	prompt := c.Query("prompt")
+	prompt := c.Query("p")
 	if prompt == "" {
 		c.AbortWithStatus(400)
 		return
 	}
+	token := c.Query("t")
+	if token == "" {
+		c.AbortWithStatus(403)
+		return
+	}
 
+	accessToken, err := ds.GetAccessTokenByQueryToken(token)
+	if err != nil {
+		lib.InternalError(err, c)
+		return
+	}
+
+	yesterday := time.Now().AddDate(0, 0, -1)
+	queryCount, err := ds.GetQueryCountForUser(accessToken.UserID, &yesterday)
+	if err != nil {
+		lib.InternalError(err, c)
+		return
+	}
+	if queryCount > 12 {
+		c.AbortWithStatus(429)
+		return
+	}
+
+	query := data.Query{
+		UserID:    accessToken.UserID,
+		QueryText: prompt,
+	}
+	if err = ds.CreateQuery(&query); err != nil {
+		lib.InternalError(err, c)
+		return
+	}
+
+	streamChat(c, prompt)
+}
+
+func streamChat(c *gin.Context, prompt string) {
 	gpt := gogpt.NewClient(os.Getenv("OPENAI_API_KEY"))
 	ctx := context.Background()
 
@@ -60,20 +97,4 @@ func chat(c *gin.Context) {
 		}
 		return false
 	})
-}
-
-type variables struct {
-	Prompt string
-}
-
-type ChatRequest struct {
-	Variables variables
-}
-
-type respChat struct {
-	Chat string `json:"chat"`
-}
-
-type Resp struct {
-	Data respChat `json:"data"`
 }

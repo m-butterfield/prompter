@@ -75,3 +75,21 @@ func (s *ds) GetAccessToken(id string) (*AccessToken, error) {
 	}
 	return token, nil
 }
+
+func (s *ds) GetAccessTokenByQueryToken(queryToken string) (*AccessToken, error) {
+	token := &AccessToken{}
+	tx := s.db.Preload("User").First(&token, "query_token = $1", queryToken)
+	if tx.Error != nil {
+		if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, tx.Error
+	}
+	if token.ExpiresAt.Before(time.Now().UTC()) {
+		if tx := s.db.Delete(token); tx.Error != nil {
+			return nil, tx.Error
+		}
+		return nil, nil
+	}
+	return token, nil
+}
