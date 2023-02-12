@@ -13,13 +13,13 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-let apiURL = "";
+let appURL = "";
 
 chrome.management.getSelf((result) => {
   if (result.installType === "development") {
-    apiURL = "http://localhost:8000";
+    appURL = "http://localhost:8000";
   } else {
-    apiURL = "https://getprompter.app";
+    appURL = "https://getprompter.app";
   }
 });
 
@@ -27,7 +27,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "prompter" || info.menuItemId === "prompter-copy") {
     const selectionText = info.selectionText;
     chrome.tabs.sendMessage(tab.id, {
-      apiURL,
+      appURL,
       selectionText: selectionText ? selectionText : "",
     });
   }
@@ -37,7 +37,7 @@ chrome.commands.onCommand.addListener((command) => {
   if (command === "open_modal") {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       chrome.tabs.sendMessage(tabs[0].id, {
-        apiURL,
+        appURL,
         selectionText: "",
       });
     });

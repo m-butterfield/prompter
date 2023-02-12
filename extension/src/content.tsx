@@ -2,7 +2,7 @@ import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import { ThemeProvider } from "@mui/material/styles";
 import { Main } from "Main";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { makeTheme } from "theme";
 import { MODAL_OPEN, setGlobalModalOpen } from "utils";
@@ -17,7 +17,7 @@ document.addEventListener("keydown", stopKeyEvents);
 document.addEventListener("keypress", stopKeyEvents);
 
 chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) =>
-  openModal(request.apiURL, request.selectionText)
+  openModal(request.appURL, request.selectionText)
 );
 
 window.addEventListener("message", (event) => {
@@ -30,7 +30,7 @@ window.addEventListener("message", (event) => {
   }
 });
 
-const openModal = (apiURL: string, selectionText: string) => {
+const openModal = (appURL: string, selectionText: string) => {
   setGlobalModalOpen(true);
 
   const root = document.createElement("div");
@@ -53,7 +53,7 @@ const openModal = (apiURL: string, selectionText: string) => {
   createRoot(shadowRootElement).render(
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
-        <Main apiURL={apiURL} selectionText={selectionText} />
+        <Main appURL={appURL} selectionText={selectionText} />
       </ThemeProvider>
     </CacheProvider>
   );

@@ -1,32 +1,26 @@
-import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
+import { PrompterDialogContent } from "PrompterDialogContent";
 import React, { useEffect, useRef, useState } from "react";
 import { setGlobalModalOpen } from "utils";
 
 type MainProps = {
-  apiURL: string;
+  appURL: string;
   selectionText: string;
 };
 
-export const Main = ({ apiURL, selectionText }: MainProps) => {
+export const Main = ({ appURL, selectionText }: MainProps) => {
   const [modalOpen, setModalOpen] = useState(true);
   const [promptInput, setPromptInput] = useState(selectionText);
-  const [error, setError] = useState("");
-  const maxLength = 4096;
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
   const copyButtonRef = useRef<HTMLButtonElement>();
-  const [queryToken, setQueryToken] = useState("");
+  const [queryToken, setQueryToken] = useState();
 
   useEffect(() => {
     chrome.storage.sync.get("queryToken", (result) => {
-      setQueryToken(result.queryToken);
+      setQueryToken(result.queryToken || "");
     });
   }, []);
 
@@ -34,11 +28,11 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     setLoading(true);
     setPromptResult("");
     const source = new EventSource(
-      `${apiURL}/chat?p=${encodeURIComponent(promptInput)}&t=${queryToken}`
+      `${appURL}/chat?p=${encodeURIComponent(promptInput)}&t=${queryToken}`
     );
     let result = "";
     source.onmessage = (event) => {
-      const msg = event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the message returned, so they are wrapped in quotes now on the BE
+      const msg = event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the messages returned, so they are wrapped in quotes now on the BE
       // skip leading spaces
       if (result === "" && msg === "\n") {
         return;
@@ -57,9 +51,8 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     };
   };
 
-  const inputRef = useRef<HTMLInputElement>();
-
   // hack to ensure input has focus since we are in a shadow dom, see inputRef on TextField below
+  const inputRef = useRef<HTMLInputElement>();
   useEffect(() => {
     const timeout = setTimeout(() => {
       inputRef.current.focus();
@@ -82,60 +75,18 @@ export const Main = ({ apiURL, selectionText }: MainProps) => {
     >
       <DialogContent>
         <Stack direction="column" spacing={2} width="100%" m="auto">
-          <DialogContentText>
-            Enter prompt for ChatGPT (press enter to submit):
-          </DialogContentText>
-          <TextField
-            multiline
-            fullWidth
-            inputRef={(el) => {
-              inputRef.current = el;
-            }}
-            disabled={loading}
-            label="Enter prompt"
-            value={promptInput}
-            error={error.length > 0}
-            helperText={error}
-            onKeyDown={(ev) => {
-              if (ev.key === "Enter") {
-                ev.preventDefault();
-                if (!error && promptInput) {
-                  getResponse();
-                }
-              }
-            }}
-            onChange={(e) => {
-              if (e.target.value.length > maxLength) {
-                setError(`too long, max ${maxLength} characters`);
-              } else if (error.length) {
-                setError("");
-              }
-              setPromptInput(e.target.value);
-            }}
-          ></TextField>
-          <Divider />
-          <DialogContentText>Result:</DialogContentText>
-          <DialogContentText whiteSpace="pre-wrap">
-            {promptResult}
-          </DialogContentText>
-          <DialogActions>
-            <Button
-              ref={(el) => (copyButtonRef.current = el)}
-              onClick={() => {
-                navigator.clipboard.writeText(promptResult);
-              }}
-            >
-              Copy to Clipboard
-            </Button>
-            <Button
-              onClick={() => {
-                setGlobalModalOpen(false);
-                setModalOpen(false);
-              }}
-            >
-              Close
-            </Button>
-          </DialogActions>
+          <PrompterDialogContent
+            inputRef={inputRef}
+            copyButtonRef={copyButtonRef}
+            loading={loading}
+            promptInput={promptInput}
+            setPromptInput={setPromptInput}
+            promptResult={promptResult}
+            getResponse={getResponse}
+            setModalOpen={setModalOpen}
+            queryToken={queryToken}
+            appURL={appURL}
+          />
         </Stack>
       </DialogContent>
     </Dialog>
