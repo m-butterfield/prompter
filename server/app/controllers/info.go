@@ -23,6 +23,10 @@ func info(c *gin.Context) {
 		lib.InternalError(err, c)
 		return
 	}
+	if accessToken == nil {
+		c.AbortWithStatus(403)
+		return
+	}
 
 	yesterday := time.Now().AddDate(0, 0, -1)
 	queryCount, err := ds.GetQueryCountForUser(accessToken.UserID, &yesterday)
