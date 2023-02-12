@@ -36,7 +36,7 @@ func chat(c *gin.Context) {
 		lib.InternalError(err, c)
 		return
 	}
-	if queryCount > 12 {
+	if queryCount > accessToken.User.DailyQueries {
 		c.AbortWithStatus(429)
 		return
 	}

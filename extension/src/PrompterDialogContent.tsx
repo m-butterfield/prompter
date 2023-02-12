@@ -3,11 +3,18 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
-import React, { MutableRefObject, useState } from "react";
+import Typography from "@mui/material/Typography";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import { setGlobalModalOpen } from "utils";
 
-type PrompterDialogContent = {
+type QueryInfo = {
+  maxQueries: number;
+  numQueries: number;
+};
+
+type PrompterDialogContentProps = {
   inputRef: MutableRefObject<HTMLInputElement>;
   copyButtonRef: MutableRefObject<HTMLButtonElement>;
   loading: boolean;
@@ -31,11 +38,26 @@ export const PrompterDialogContent = ({
   setModalOpen,
   queryToken,
   appURL,
-}: PrompterDialogContent) => {
+}: PrompterDialogContentProps) => {
   const [error, setError] = useState("");
+  const [queryInfo, setQueryInfo] = useState<QueryInfo>();
+  const [queryInfoError, setQueryInfoError] = useState(false);
   const maxLength = 4096;
 
-  if (typeof queryToken === "undefined") {
+  useEffect(() => {
+    if (queryToken) {
+      fetch(`${appURL}/chat/info?t=${queryToken}`)
+        .then((r) => r.json())
+        .then((response: QueryInfo) => {
+          setQueryInfo(response);
+        })
+        .catch(() => {
+          setQueryInfoError(true);
+        });
+    }
+  }, [queryToken]);
+
+  if (typeof queryToken === "undefined" || typeof queryInfo === "undefined") {
     return <DialogContentText>Loading...</DialogContentText>;
   }
 
@@ -43,6 +65,15 @@ export const PrompterDialogContent = ({
     return (
       <DialogContentText>
         Please <Link href={appURL}>Log in</Link> to use Prompter
+      </DialogContentText>
+    );
+  }
+
+  if (queryInfoError) {
+    return (
+      <DialogContentText>
+        Could not fetch account information. Please{" "}
+        <Link href={appURL}>Log in</Link> again or try again later.
       </DialogContentText>
     );
   }
@@ -82,10 +113,11 @@ export const PrompterDialogContent = ({
       ></TextField>
       <Divider />
       <DialogContentText>Result:</DialogContentText>
-      <DialogContentText whiteSpace="pre-wrap">
-        {promptResult}
-      </DialogContentText>
-      <DialogActions>
+      <Typography whiteSpace="pre-wrap">{promptResult}</Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography>
+          Daily queries: {queryInfo.numQueries} / {queryInfo.maxQueries}
+        </Typography>
         <Button
           ref={(el) => (copyButtonRef.current = el)}
           onClick={() => {
@@ -102,7 +134,7 @@ export const PrompterDialogContent = ({
         >
           Close
         </Button>
-      </DialogActions>
+      </Stack>
     </>
   );
 };

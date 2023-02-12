@@ -34,6 +34,7 @@ func router() (*gin.Engine, error) {
 	r.Use(auth)
 	r.NoRoute(index)
 	r.GET("/chat", chat)
+	r.GET("/chat/info", info)
 
 	graphql := r.Group("/graphql")
 	graphql.Use(ginContextToContextMiddleware)

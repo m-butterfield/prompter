@@ -55,7 +55,7 @@ export const Main = ({ appURL, selectionText }: MainProps) => {
   const inputRef = useRef<HTMLInputElement>();
   useEffect(() => {
     const timeout = setTimeout(() => {
-      inputRef.current.focus();
+      inputRef.current?.focus();
     }, 100);
 
     return () => {
