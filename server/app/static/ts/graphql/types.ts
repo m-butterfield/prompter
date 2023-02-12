@@ -12,10 +12,16 @@ export type Scalars = {
   Float: number;
 };
 
+export type LoginResponse = {
+  __typename?: 'LoginResponse';
+  queryToken: Scalars['String'];
+  user: User;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
-  login: User;
+  login?: Maybe<LoginResponse>;
   logout: Scalars['Boolean'];
 };
 

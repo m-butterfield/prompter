@@ -10,7 +10,10 @@ import React, { useContext, useState } from "react";
 const LOGIN = gql`
   mutation login($credential: String!) {
     login(credential: $credential) {
-      username
+      user {
+        username
+      }
+      queryToken
     }
   }
 `;
@@ -38,7 +41,14 @@ const Home = () => {
             onSuccess={(resp) => {
               setCredential(resp.credential);
               login().then((response) => {
-                setUser(response.data.login);
+                setUser(response.data.login.user);
+                window.postMessage(
+                  {
+                    type: "prompter-query-token",
+                    token: response.data.login.queryToken,
+                  },
+                  "*"
+                );
               });
               setGoogleError(false);
             }}

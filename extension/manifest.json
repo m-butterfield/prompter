@@ -4,7 +4,7 @@
   "description": "Complete text inputs using ChatGPT",
   "version": "1.1",
   "permissions": [
-    "contextMenus"
+    "contextMenus", "storage"
   ],
   "content_scripts": [
     {

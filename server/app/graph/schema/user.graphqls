@@ -8,10 +8,15 @@ input UserCreds {
   password: String!
 }
 
+type LoginResponse {
+  user: User!
+  queryToken: String!
+}
+
 type Mutation {
   createUser(input: UserCreds!): User!
   logout: Boolean!
-  login(credential: String!): User!
+  login(credential: String!): LoginResponse
 }
 
 type Query {

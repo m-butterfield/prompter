@@ -20,6 +20,20 @@ chrome.runtime.onMessage.addListener((request, _sender, _sendResponse) =>
   openModal(request.apiURL, request.selectionText)
 );
 
+window.addEventListener("message", (event) => {
+  if (event.source !== window) {
+    return;
+  }
+
+  if (event.data.type === "prompter-query-token") {
+    chrome.storage.sync.set({ queryToken: event.data.token });
+  }
+});
+
+chrome.storage.sync.get("queryToken", (items) => {
+  console.log(items);
+});
+
 const openModal = (apiURL: string, selectionText: string) => {
   setGlobalModalOpen(true);
 

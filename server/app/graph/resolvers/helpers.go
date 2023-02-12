@@ -12,15 +12,15 @@ import (
 	"time"
 )
 
-func cookieLogin(ctx context.Context, ds data.Store, user *data.User) error {
+func cookieLogin(ctx context.Context, ds data.Store, user *data.User) (*data.AccessToken, error) {
 	token, err := ds.CreateAccessToken(user)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	gctx, err := ginContextFromContext(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	http.SetCookie(gctx.Writer, &http.Cookie{
@@ -28,7 +28,7 @@ func cookieLogin(ctx context.Context, ds data.Store, user *data.User) error {
 		Value:   token.ID,
 		Expires: token.ExpiresAt,
 	})
-	return nil
+	return token, nil
 }
 
 func ginContextFromContext(ctx context.Context) (*gin.Context, error) {

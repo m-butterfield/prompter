@@ -14,10 +14,11 @@ const (
 )
 
 type AccessToken struct {
-	ID        string    `gorm:"type:varchar(64)"`
-	ExpiresAt time.Time `gorm:"not null"`
-	UserID    string    `gorm:"not null"`
-	User      *User
+	ID         string    `gorm:"type:varchar(64)"`
+	QueryToken string    `gorm:"not null;unique"`
+	ExpiresAt  time.Time `gorm:"not null"`
+	UserID     string    `gorm:"not null"`
+	User       *User
 }
 
 func (s *ds) CreateAccessToken(user *User) (*AccessToken, error) {
@@ -25,10 +26,15 @@ func (s *ds) CreateAccessToken(user *User) (*AccessToken, error) {
 	if err != nil {
 		return nil, err
 	}
+	queryTokenStr, err := randomToken()
+	if err != nil {
+		return nil, err
+	}
 	token := &AccessToken{
-		ID:        tokenStr,
-		ExpiresAt: time.Now().UTC().Add(TokenTTL),
-		User:      user,
+		ID:         tokenStr,
+		QueryToken: queryTokenStr,
+		ExpiresAt:  time.Now().UTC().Add(TokenTTL),
+		User:       user,
 	}
 	if tx := s.db.Create(token); tx.Error != nil {
 		return nil, tx.Error
