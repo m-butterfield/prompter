@@ -50,19 +50,20 @@ func chat(c *gin.Context) {
 		return
 	}
 
-	streamChat(c, prompt)
+	streamChat(c, prompt, accessToken.User.Username)
 }
 
-func streamChat(c *gin.Context, prompt string) {
+func streamChat(c *gin.Context, prompt string, username string) {
 	gpt := gogpt.NewClient(os.Getenv("OPENAI_API_KEY"))
 	ctx := context.Background()
 
 	req := gogpt.CompletionRequest{
-		Model:       gogpt.GPT3TextCurie001,
+		Model:       gogpt.GPT3TextDavinci001,
 		Temperature: 0.4,
 		MaxTokens:   99,
 		Prompt:      prompt,
 		Stream:      true,
+		User:        username,
 	}
 
 	stream, err := gpt.CreateCompletionStream(ctx, req)
