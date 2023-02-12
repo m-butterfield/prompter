@@ -6,12 +6,14 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/graph/generated"
 	"github.com/m-butterfield/prompter/server/app/graph/model"
-	oauth2 "google.golang.org/api/oauth2/v2"
+	"github.com/m-butterfield/prompter/server/app/lib"
+	"google.golang.org/api/idtoken"
 )
 
 // CreateUser is the resolver for the createUser field.
@@ -41,21 +43,25 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, credential string) (*model.LoginResponse, error) {
-	oauth2Service, err := oauth2.NewService(ctx)
-	tokenInfoCall := oauth2Service.Tokeninfo()
-	tokenInfoCall.IdToken(credential)
-	tokenInfo, err := tokenInfoCall.Do()
+	result, err := idtoken.Validate(ctx, credential, lib.GoogleOAuthClientID)
 	if err != nil {
-		return nil, err
+		return nil, internalError(err)
+	}
+	email, ok := result.Claims["email"].(string)
+	if !ok {
+		return nil, internalError(err)
+	}
+	if email == "" {
+		return nil, internalError(errors.New("no email present in token"))
 	}
 
-	user, err := r.DS.GetUser(tokenInfo.Email)
+	user, err := r.DS.GetUser(email)
 	if err != nil {
 		return nil, internalError(err)
 	}
 	if user == nil {
 		user = &data.User{
-			Username: tokenInfo.Email,
+			Username: email,
 		}
 		if err = r.DS.CreateUser(user); err != nil {
 			return nil, internalError(err)

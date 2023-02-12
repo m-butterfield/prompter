@@ -21,10 +21,7 @@ const LOGIN = gql`
 const Home = () => {
   const { user, setUser } = useContext(AppContext);
   const [googleError, setGoogleError] = useState(false);
-  const [credential, setCredential] = useState("");
-  const [login, { error }] = useMutation<Mutation, MutationLoginArgs>(LOGIN, {
-    variables: { credential: credential },
-  });
+  const [login, { error }] = useMutation<Mutation, MutationLoginArgs>(LOGIN);
 
   return (
     <Stack direction="column" spacing={3} alignItems="center">
@@ -39,17 +36,18 @@ const Home = () => {
           )}
           <GoogleLogin
             onSuccess={(resp) => {
-              setCredential(resp.credential);
-              login().then((response) => {
-                setUser(response.data.login.user);
-                window.postMessage(
-                  {
-                    type: "prompter-query-token",
-                    token: response.data.login.queryToken,
-                  },
-                  "*"
-                );
-              });
+              login({ variables: { credential: resp.credential } }).then(
+                (response) => {
+                  setUser(response.data.login.user);
+                  window.postMessage(
+                    {
+                      type: "prompter-query-token",
+                      token: response.data.login.queryToken,
+                    },
+                    "*"
+                  );
+                }
+              );
               setGoogleError(false);
             }}
             onError={() => {
