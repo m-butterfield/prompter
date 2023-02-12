@@ -25,3 +25,7 @@ Change to 'server' directory:
 ## Run the app
 
     make run-server
+
+## Run webpakc
+
+    make run-webpack
