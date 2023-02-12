@@ -3,6 +3,7 @@ import DialogContent from "@mui/material/DialogContent";
 import Stack from "@mui/material/Stack";
 import { PrompterDialogContent } from "PrompterDialogContent";
 import React, { useEffect, useRef, useState } from "react";
+import { QueryInfo } from "types";
 import { setGlobalModalOpen } from "utils";
 
 type MainProps = {
@@ -17,6 +18,25 @@ export const Main = ({ appURL, selectionText }: MainProps) => {
   const [promptResult, setPromptResult] = useState("");
   const copyButtonRef = useRef<HTMLButtonElement>();
   const [queryToken, setQueryToken] = useState();
+  const [queryInfo, setQueryInfo] = useState<QueryInfo>();
+  const [queryInfoError, setQueryInfoError] = useState(false);
+
+  const getQueryInfo = () => {
+    fetch(`${appURL}/chat/info?t=${queryToken}`)
+      .then((r) => r.json())
+      .then((response: QueryInfo) => {
+        setQueryInfo(response);
+      })
+      .catch(() => {
+        setQueryInfoError(true);
+      });
+  };
+
+  useEffect(() => {
+    if (queryToken) {
+      getQueryInfo();
+    }
+  }, [queryToken]);
 
   useEffect(() => {
     chrome.storage.sync.get("queryToken", (result) => {
@@ -45,6 +65,7 @@ export const Main = ({ appURL, selectionText }: MainProps) => {
         setLoading(false);
         copyButtonRef.current.focus();
         source.close();
+        getQueryInfo();
       } else {
         setPromptResult("Error, please try again later...");
       }
@@ -85,6 +106,8 @@ export const Main = ({ appURL, selectionText }: MainProps) => {
             getResponse={getResponse}
             setModalOpen={setModalOpen}
             queryToken={queryToken}
+            queryInfo={queryInfo}
+            queryInfoError={queryInfoError}
             appURL={appURL}
           />
         </Stack>

@@ -36,8 +36,11 @@ func chat(c *gin.Context) {
 		lib.InternalError(err, c)
 		return
 	}
-	if queryCount > accessToken.User.DailyQueries {
-		c.AbortWithStatus(429)
+	if queryCount >= accessToken.User.DailyQueries {
+		c.Stream(func(w io.Writer) bool {
+			c.SSEvent("message", "Daily query limit exceeded.")
+			return false
+		})
 		return
 	}
 

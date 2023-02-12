@@ -6,13 +6,9 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import React, { MutableRefObject, useEffect, useState } from "react";
+import React, { MutableRefObject, useState } from "react";
+import { QueryInfo } from "types";
 import { setGlobalModalOpen } from "utils";
-
-type QueryInfo = {
-  maxQueries: number;
-  numQueries: number;
-};
 
 type PrompterDialogContentProps = {
   inputRef: MutableRefObject<HTMLInputElement>;
@@ -24,6 +20,8 @@ type PrompterDialogContentProps = {
   getResponse: () => void;
   setModalOpen: (v: boolean) => void;
   queryToken?: string;
+  queryInfo?: QueryInfo;
+  queryInfoError: boolean;
   appURL: string;
 };
 
@@ -37,25 +35,14 @@ export const PrompterDialogContent = ({
   getResponse,
   setModalOpen,
   queryToken,
+  queryInfo,
+  queryInfoError,
   appURL,
 }: PrompterDialogContentProps) => {
   const [error, setError] = useState("");
-  const [queryInfo, setQueryInfo] = useState<QueryInfo>();
-  const [queryInfoError, setQueryInfoError] = useState(false);
   const maxLength = 4096;
-
-  useEffect(() => {
-    if (queryToken) {
-      fetch(`${appURL}/chat/info?t=${queryToken}`)
-        .then((r) => r.json())
-        .then((response: QueryInfo) => {
-          setQueryInfo(response);
-        })
-        .catch(() => {
-          setQueryInfoError(true);
-        });
-    }
-  }, [queryToken]);
+  const queriesMaxed =
+    queryInfo && queryInfo.numQueries >= queryInfo.maxQueries;
 
   if (typeof queryToken === "undefined" || typeof queryInfo === "undefined") {
     return <DialogContentText>Loading...</DialogContentText>;
@@ -89,7 +76,7 @@ export const PrompterDialogContent = ({
         inputRef={(el) => {
           inputRef.current = el;
         }}
-        disabled={loading}
+        disabled={loading || queriesMaxed}
         label="Enter prompt"
         value={promptInput}
         error={error.length > 0}
@@ -111,13 +98,20 @@ export const PrompterDialogContent = ({
           setPromptInput(e.target.value);
         }}
       ></TextField>
+      <Stack direction="row" justifyContent="space-between">
+        <DialogContentText>
+          Daily queries used: {queryInfo.numQueries} / {queryInfo.maxQueries}
+        </DialogContentText>
+        {queriesMaxed && (
+          <DialogContentText>
+            <Link href={appURL}>Upgrade account</Link> to get more queries
+          </DialogContentText>
+        )}
+      </Stack>
       <Divider />
       <DialogContentText>Result:</DialogContentText>
       <Typography whiteSpace="pre-wrap">{promptResult}</Typography>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography>
-          Daily queries: {queryInfo.numQueries} / {queryInfo.maxQueries}
-        </Typography>
+      <DialogActions>
         <Button
           ref={(el) => (copyButtonRef.current = el)}
           onClick={() => {
@@ -134,7 +128,7 @@ export const PrompterDialogContent = ({
         >
           Close
         </Button>
-      </Stack>
+      </DialogActions>
     </>
   );
 };
