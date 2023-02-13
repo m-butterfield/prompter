@@ -9,15 +9,15 @@ import { setGlobalModalOpen } from "utils";
 type MainProps = {
   appURL: string;
   selectionText: string;
+  queryToken: string;
 };
 
-export const Main = ({ appURL, selectionText }: MainProps) => {
+export const Main = ({ appURL, selectionText, queryToken }: MainProps) => {
   const [modalOpen, setModalOpen] = useState(true);
   const [promptInput, setPromptInput] = useState(selectionText);
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
   const copyButtonRef = useRef<HTMLButtonElement>();
-  const [queryToken, setQueryToken] = useState();
   const [queryInfo, setQueryInfo] = useState<QueryInfo>();
   const [queryInfoError, setQueryInfoError] = useState(false);
 
@@ -36,12 +36,6 @@ export const Main = ({ appURL, selectionText }: MainProps) => {
     if (queryToken) {
       getQueryInfo();
     }
-  }, [queryToken]);
-
-  useEffect(() => {
-    chrome.storage.sync.get("queryToken", (result) => {
-      setQueryToken(result.queryToken || "");
-    });
   }, []);
 
   const getResponse = () => {

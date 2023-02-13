@@ -19,7 +19,7 @@ type PrompterDialogContentProps = {
   promptResult: string;
   getResponse: () => void;
   setModalOpen: (v: boolean) => void;
-  queryToken?: string;
+  queryToken: string;
   queryInfo?: QueryInfo;
   queryInfoError: boolean;
   appURL: string;
@@ -53,7 +53,7 @@ export const PrompterDialogContent = ({
     );
   }
 
-  if (typeof queryToken === "undefined" || typeof queryInfo === "undefined") {
+  if (typeof queryInfo === "undefined") {
     return <DialogContentText>Loading...</DialogContentText>;
   }
 
