@@ -1,3 +1,4 @@
+import { Privacy } from "app/Privacy";
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
@@ -11,6 +12,14 @@ const AppRoutes = () => {
         element={
           <React.Suspense fallback={<>...</>}>
             <Home />
+          </React.Suspense>
+        }
+      />
+      <Route
+        path="/privacy"
+        element={
+          <React.Suspense fallback={<>...</>}>
+            <Privacy />
           </React.Suspense>
         }
       />

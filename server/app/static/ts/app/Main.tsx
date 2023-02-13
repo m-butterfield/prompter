@@ -3,6 +3,7 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import AppRoutes from "app/AppRoutes";
+import { Footer } from "app/Footer";
 import { Header } from "app/Header";
 import { AppContext } from "app/index";
 import { ME } from "app/queries";
@@ -26,10 +27,11 @@ const Main = () => {
         <BrowserRouter>
           <Header />
           <Container>
-            <Box sx={{ my: 2 }}>
+            <Box sx={{ my: 2, minHeight: "100vh" }}>
               <AppRoutes />
             </Box>
           </Container>
+          <Footer />
         </BrowserRouter>
       )}
     </>

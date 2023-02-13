@@ -9,7 +9,7 @@ export DB_SOCKET=host=localhost dbname=prompter
 deploy: docker-build docker-push
 	$(deployservercommand)
 
-docker-build:
+docker-build: run-webpack-prod
 	docker-compose build
 
 docker-push:
