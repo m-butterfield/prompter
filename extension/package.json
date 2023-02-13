@@ -3,7 +3,7 @@
     "dev": "webpack --mode development --watch",
     "build": "rm -rf dist && webpack --mode production",
     "lint": "prettier --write src/**/*.ts",
-    "zip": "zip -r prompter.zip dist icons manifest.json"
+    "zip": "rm -rf dist && webpack --mode production && zip -r prompter.zip dist icons manifest.json"
   },
   "name": "prompter",
   "version": "1.0.0",
