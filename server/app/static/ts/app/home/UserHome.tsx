@@ -1,5 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
+import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
+import { PaymentPlans } from "app/home/PaymentPlans";
 import { AppContext } from "app/index";
 import { Query } from "graphql/types";
 import React, { useContext } from "react";
@@ -32,15 +34,15 @@ const UserHome = () => {
   return (
     <>
       <Typography>Logged in as: {user.username} </Typography>
+      <Divider />
       <Typography>
         Daily queries used: {data.getUserStats.numQueries}
       </Typography>
       <Typography>
         Daily queries allowed: {data.getUserStats.maxQueries}
       </Typography>
-      <Typography fontStyle="italic" fontWeight="bold">
-        Want more queries? Paid plans coming soon!
-      </Typography>
+      <Divider />
+      <PaymentPlans />
     </>
   );
 };
