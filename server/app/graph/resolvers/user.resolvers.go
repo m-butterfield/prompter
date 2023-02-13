@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/graph/generated"
@@ -88,6 +89,23 @@ func (r *queryResolver) Me(ctx context.Context) (*data.User, error) {
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context, username string) (*data.User, error) {
 	panic(fmt.Errorf("not implemented: GetUser - getUser"))
+}
+
+// GetUserStats is the resolver for the getUserStats field.
+func (r *queryResolver) GetUserStats(ctx context.Context) (*model.UserStats, error) {
+	user, err := loggedInUser(ctx)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	yesterday := time.Now().AddDate(0, 0, -1)
+	queryCount, err := r.DS.GetQueryCountForUser(user.ID, &yesterday)
+	if err != nil {
+		return nil, internalError(err)
+	}
+	return &model.UserStats{
+		NumQueries: queryCount,
+		MaxQueries: user.DailyQueries,
+	}, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

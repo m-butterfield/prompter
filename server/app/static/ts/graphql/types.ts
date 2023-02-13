@@ -39,6 +39,7 @@ export type Query = {
   __typename?: 'Query';
   chat: Scalars['String'];
   getUser: User;
+  getUserStats: UserStats;
   me?: Maybe<User>;
 };
 
@@ -61,4 +62,10 @@ export type User = {
 export type UserCreds = {
   password: Scalars['String'];
   username: Scalars['String'];
+};
+
+export type UserStats = {
+  __typename?: 'UserStats';
+  maxQueries: Scalars['Int'];
+  numQueries: Scalars['Int'];
 };

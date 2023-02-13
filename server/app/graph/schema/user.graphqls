@@ -13,6 +13,11 @@ type LoginResponse {
   queryToken: String!
 }
 
+type UserStats {
+  maxQueries: Int!
+  numQueries: Int!
+}
+
 type Mutation {
   createUser(input: UserCreds!): User!
   logout: Boolean!
@@ -22,4 +27,5 @@ type Mutation {
 type Query {
   me: User
   getUser(username: String!): User!
+  getUserStats: UserStats!
 }

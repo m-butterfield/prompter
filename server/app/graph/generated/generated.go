@@ -56,14 +56,20 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Chat    func(childComplexity int, prompt string) int
-		GetUser func(childComplexity int, username string) int
-		Me      func(childComplexity int) int
+		Chat         func(childComplexity int, prompt string) int
+		GetUser      func(childComplexity int, username string) int
+		GetUserStats func(childComplexity int) int
+		Me           func(childComplexity int) int
 	}
 
 	User struct {
 		ID       func(childComplexity int) int
 		Username func(childComplexity int) int
+	}
+
+	UserStats struct {
+		MaxQueries func(childComplexity int) int
+		NumQueries func(childComplexity int) int
 	}
 }
 
@@ -75,6 +81,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Me(ctx context.Context) (*data.User, error)
 	GetUser(ctx context.Context, username string) (*data.User, error)
+	GetUserStats(ctx context.Context) (*model.UserStats, error)
 	Chat(ctx context.Context, prompt string) (string, error)
 }
 
@@ -162,6 +169,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetUser(childComplexity, args["username"].(string)), true
 
+	case "Query.getUserStats":
+		if e.complexity.Query.GetUserStats == nil {
+			break
+		}
+
+		return e.complexity.Query.GetUserStats(childComplexity), true
+
 	case "Query.me":
 		if e.complexity.Query.Me == nil {
 			break
@@ -182,6 +196,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.User.Username(childComplexity), true
+
+	case "UserStats.maxQueries":
+		if e.complexity.UserStats.MaxQueries == nil {
+			break
+		}
+
+		return e.complexity.UserStats.MaxQueries(childComplexity), true
+
+	case "UserStats.numQueries":
+		if e.complexity.UserStats.NumQueries == nil {
+			break
+		}
+
+		return e.complexity.UserStats.NumQueries(childComplexity), true
 
 	}
 	return 0, false
@@ -271,6 +299,11 @@ type LoginResponse {
   queryToken: String!
 }
 
+type UserStats {
+  maxQueries: Int!
+  numQueries: Int!
+}
+
 type Mutation {
   createUser(input: UserCreds!): User!
   logout: Boolean!
@@ -280,6 +313,7 @@ type Mutation {
 type Query {
   me: User
   getUser(username: String!): User!
+  getUserStats: UserStats!
 }
 `, BuiltIn: false},
 }
@@ -762,6 +796,55 @@ func (ec *executionContext) fieldContext_Query_getUser(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getUserStats(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getUserStats(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetUserStats(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserStats)
+	fc.Result = res
+	return ec.marshalNUserStats2ᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋgraphᚋmodelᚐUserStats(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getUserStats(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "maxQueries":
+				return ec.fieldContext_UserStats_maxQueries(ctx, field)
+			case "numQueries":
+				return ec.fieldContext_UserStats_numQueries(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type UserStats", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_chat(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_chat(ctx, field)
 	if err != nil {
@@ -1026,6 +1109,94 @@ func (ec *executionContext) fieldContext_User_username(ctx context.Context, fiel
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserStats_maxQueries(ctx context.Context, field graphql.CollectedField, obj *model.UserStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserStats_maxQueries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MaxQueries, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserStats_maxQueries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserStats_numQueries(ctx context.Context, field graphql.CollectedField, obj *model.UserStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserStats_numQueries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.NumQueries, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserStats_numQueries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2985,6 +3156,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getUserStats":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getUserStats(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "chat":
 			field := field
 
@@ -3045,6 +3236,41 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "username":
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userStatsImplementors = []string{"UserStats"}
+
+func (ec *executionContext) _UserStats(ctx context.Context, sel ast.SelectionSet, obj *model.UserStats) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userStatsImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserStats")
+		case "maxQueries":
+
+			out.Values[i] = ec._UserStats_maxQueries(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "numQueries":
+
+			out.Values[i] = ec._UserStats_numQueries(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3393,6 +3619,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3425,6 +3666,20 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋmᚑbutterfieldᚋpro
 func (ec *executionContext) unmarshalNUserCreds2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋgraphᚋmodelᚐUserCreds(ctx context.Context, v interface{}) (model.UserCreds, error) {
 	res, err := ec.unmarshalInputUserCreds(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserStats2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋgraphᚋmodelᚐUserStats(ctx context.Context, sel ast.SelectionSet, v model.UserStats) graphql.Marshaler {
+	return ec._UserStats(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUserStats2ᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋgraphᚋmodelᚐUserStats(ctx context.Context, sel ast.SelectionSet, v *model.UserStats) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._UserStats(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

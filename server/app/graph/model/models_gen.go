@@ -15,3 +15,8 @@ type UserCreds struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
+type UserStats struct {
+	MaxQueries int `json:"maxQueries"`
+	NumQueries int `json:"numQueries"`
+}

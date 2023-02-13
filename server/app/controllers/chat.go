@@ -61,9 +61,9 @@ func streamChat(c *gin.Context, prompt string, username string) {
 	ctx := context.Background()
 
 	req := gogpt.CompletionRequest{
-		Model:       gogpt.GPT3TextDavinci001,
-		Temperature: 0.4,
-		MaxTokens:   99,
+		Model:       gogpt.GPT3TextDavinci003,
+		Temperature: 0.3,
+		MaxTokens:   512,
 		Prompt:      prompt,
 		Stream:      true,
 		User:        username,
