@@ -46,23 +46,29 @@ export const PrompterDialogContent = ({
 
   if (queryInfoError) {
     return (
-      <DialogContentText>
-        Could not fetch account information. Please{" "}
-        <Link href={appURL}>Log in</Link> again or try again later.
-      </DialogContentText>
+      <Stack direction="column" alignItems="center" spacing={2}>
+        <DialogContentText variant="h3">Prompter</DialogContentText>
+        <DialogContentText>
+          Could not fetch account information. Please{" "}
+          <Link href={appURL}>Log in</Link> again or try again later.
+        </DialogContentText>
+      </Stack>
+    );
+  }
+
+  if (queryToken === "") {
+    return (
+      <Stack direction="column" alignItems="center" spacing={2}>
+        <DialogContentText variant="h3">Prompter</DialogContentText>
+        <DialogContentText>
+          Please <Link href={appURL}>Log in</Link> to use Prompter
+        </DialogContentText>
+      </Stack>
     );
   }
 
   if (typeof queryInfo === "undefined") {
     return <DialogContentText>Loading...</DialogContentText>;
-  }
-
-  if (queryToken === "") {
-    return (
-      <DialogContentText>
-        Please <Link href={appURL}>Log in</Link> to use Prompter
-      </DialogContentText>
-    );
   }
 
   return (
