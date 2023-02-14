@@ -1,7 +1,5 @@
 import { gql, useMutation } from "@apollo/client";
 import Alert from "@mui/material/Alert";
-import Link from "@mui/material/Link";
-import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { GoogleLogin } from "@react-oauth/google";
 import { AppContext } from "app/index";
