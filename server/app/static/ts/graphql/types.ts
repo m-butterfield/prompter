@@ -21,6 +21,7 @@ export type LoginResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  getCheckoutSession: Scalars['String'];
   login?: Maybe<LoginResponse>;
   logout: Scalars['Boolean'];
 };
@@ -28,6 +29,11 @@ export type Mutation = {
 
 export type MutationCreateUserArgs = {
   input: UserCreds;
+};
+
+
+export type MutationGetCheckoutSessionArgs = {
+  paymentPlanID: Scalars['String'];
 };
 
 

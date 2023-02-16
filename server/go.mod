@@ -9,6 +9,7 @@ require (
 	github.com/sashabaranov/go-gpt3 v1.0.0
 	github.com/shopspring/decimal v1.3.1
 	github.com/stretchr/testify v1.8.1
+	github.com/stripe/stripe-go/v74 v74.7.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	google.golang.org/api v0.109.0
 	gorm.io/driver/postgres v1.4.7

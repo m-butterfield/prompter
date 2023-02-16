@@ -1,3 +1,4 @@
+import { gql } from "@apollo/client";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import List from "@mui/material/List";
@@ -6,6 +7,12 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { AppContext } from "app/index";
 import React, { useContext } from "react";
+
+const GET_CHECKOUT_SESSION = gql`
+  mutation getCheckoutSession($paymentPlanID: String!) {
+    getCheckoutSession(paymentPlanID: $paymentPlanID)
+  }
+`;
 
 type PaymentPlanItemProps = {
   price: string;

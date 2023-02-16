@@ -50,9 +50,10 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateUser func(childComplexity int, input model.UserCreds) int
-		Login      func(childComplexity int, credential string) int
-		Logout     func(childComplexity int) int
+		CreateUser         func(childComplexity int, input model.UserCreds) int
+		GetCheckoutSession func(childComplexity int, paymentPlanID string) int
+		Login              func(childComplexity int, credential string) int
+		Logout             func(childComplexity int) int
 	}
 
 	Query struct {
@@ -77,6 +78,7 @@ type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserCreds) (*data.User, error)
 	Logout(ctx context.Context) (bool, error)
 	Login(ctx context.Context, credential string) (*model.LoginResponse, error)
+	GetCheckoutSession(ctx context.Context, paymentPlanID string) (string, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*data.User, error)
@@ -125,6 +127,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserCreds)), true
+
+	case "Mutation.getCheckoutSession":
+		if e.complexity.Mutation.GetCheckoutSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_getCheckoutSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.GetCheckoutSession(childComplexity, args["paymentPlanID"].(string)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -284,6 +298,10 @@ var sources = []*ast.Source{
   chat(prompt: String!): String!
 }
 `, BuiltIn: false},
+	{Name: "../schema/payment_plan.graphqls", Input: `extend type Mutation {
+  getCheckoutSession(paymentPlanID: String!): String!
+}
+`, BuiltIn: false},
 	{Name: "../schema/user.graphqls", Input: `type User {
   id: String!
   username: String!
@@ -335,6 +353,21 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 		}
 	}
 	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_getCheckoutSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["paymentPlanID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paymentPlanID"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paymentPlanID"] = arg0
 	return args, nil
 }
 
@@ -684,6 +717,60 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_getCheckoutSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_getCheckoutSession(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().GetCheckoutSession(rctx, fc.Args["paymentPlanID"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_getCheckoutSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_getCheckoutSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3088,6 +3175,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_login(ctx, field)
+			})
+
+		case "getCheckoutSession":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_getCheckoutSession(ctx, field)
 			})
 
 		default:
