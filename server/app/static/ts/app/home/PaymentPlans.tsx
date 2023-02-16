@@ -6,8 +6,8 @@ export const PaymentPlans = () => {
   return (
     <Stack direction="row" spacing={4}>
       <PaymentPlanItem price={"$5"} queriesPerDay={100} />
-      <PaymentPlanItem price={"$20"} queriesPerDay={1000} />
-      <PaymentPlanItem price={"$80"} queriesPerDay={10000} />
+      <PaymentPlanItem price={"$15"} queriesPerDay={500} />
+      <PaymentPlanItem price={"$30"} queriesPerDay={2500} />
     </Stack>
   );
 };
