@@ -42,7 +42,6 @@ type Store interface {
 	CreateQuery(query *Query) error
 	GetQueryCountForUser(id string, since *time.Time) (int, error)
 	CreatePaymentPlan(plan *PaymentPlan) error
-	GetActivePlans() ([]*PaymentPlan, error)
 }
 
 type ds struct {

@@ -55,7 +55,3 @@ func (t *TestStore) GetQueryCountForUser(id string, since *time.Time) (int, erro
 func (t *TestStore) CreatePaymentPlan(plan *PaymentPlan) error {
 	panic("Not implemented")
 }
-
-func (t *TestStore) GetActivePlans() ([]*PaymentPlan, error) {
-	panic("Not implemented")
-}

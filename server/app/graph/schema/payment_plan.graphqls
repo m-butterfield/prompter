@@ -1,3 +1,19 @@
+enum PaymentPlanName {
+  Basic
+  Pro
+  Premium
+}
+
+type PaymentPlanTemplate {
+  name: PaymentPlanName!
+  price: String!
+  queriesPerDay: Int!
+}
+
+extend type Query {
+  getPaymentPlanTemplates: [PaymentPlanTemplate!]!
+}
+
 extend type Mutation {
-  getCheckoutSession(paymentPlanID: String!): String!
+  getCheckoutSession(paymentPlanName: PaymentPlanName!): String!
 }

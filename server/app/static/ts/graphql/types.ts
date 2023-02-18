@@ -33,7 +33,7 @@ export type MutationCreateUserArgs = {
 
 
 export type MutationGetCheckoutSessionArgs = {
-  paymentPlanID: Scalars['String'];
+  paymentPlanName: PaymentPlanName;
 };
 
 
@@ -41,9 +41,23 @@ export type MutationLoginArgs = {
   credential: Scalars['String'];
 };
 
+export enum PaymentPlanName {
+  Basic = 'Basic',
+  Premium = 'Premium',
+  Pro = 'Pro'
+}
+
+export type PaymentPlanTemplate = {
+  __typename?: 'PaymentPlanTemplate';
+  name: PaymentPlanName;
+  price: Scalars['String'];
+  queriesPerDay: Scalars['Int'];
+};
+
 export type Query = {
   __typename?: 'Query';
   chat: Scalars['String'];
+  getPaymentPlanTemplates: Array<PaymentPlanTemplate>;
   getUser: User;
   getUserStats: UserStats;
   me?: Maybe<User>;

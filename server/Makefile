@@ -60,6 +60,7 @@ test:
 	createdb prompter_test
 	psql prompter_test -c 'CREATE EXTENSION citext'
 	psql prompter_test -c 'CREATE EXTENSION "uuid-ossp"'
+	psql prompter_test -c "CREATE TYPE payment_plan_name AS ENUM ('Basic', 'Pro', 'Premium');"
 	go run cmd/migrate/main.go
 	go test -v ./app/...
 

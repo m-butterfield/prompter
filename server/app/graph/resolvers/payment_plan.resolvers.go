@@ -6,29 +6,41 @@ package resolvers
 
 import (
 	"context"
-	"github.com/stripe/stripe-go/v74"
+
+	"github.com/m-butterfield/prompter/server/app/data"
+	stripe "github.com/stripe/stripe-go/v74"
 	"github.com/stripe/stripe-go/v74/checkout/session"
 )
 
 // GetCheckoutSession is the resolver for the getCheckoutSession field.
-func (r *mutationResolver) GetCheckoutSession(ctx context.Context, paymentPlanID string) (string, error) {
-	user, err := loggedInUser(ctx)
-	if err != nil {
-		return nil, internalError(err)
-	}
+func (r *mutationResolver) GetCheckoutSession(ctx context.Context, paymentPlanName data.PaymentPlanName) (string, error) {
+	//user, err := loggedInUser(ctx)
+	//if err != nil {
+	//	return "", internalError(err)
+	//}
 
-	stripe.Key = "sk_test_51MbwHcJYDOv9WKcON9Olyvdvlvgk0C3conzPcEJsRRqitvp0aiZbfXxDulNkN26RfHUEa3uvbmyRBWuBe6F6lPQj00LeWQTo5K"
+	stripe.Key = "stripekey"
 
 	params := &stripe.CheckoutSessionParams{
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Price:    stripe.String("price_H5ggYwtDq4fbrJ"),
-				Quantity: stripe.Int64(2),
+				Price:    stripe.String("priceid"),
+				Quantity: stripe.Int64(1),
 			},
 		},
 		Mode:       stripe.String("payment"),
 		SuccessURL: stripe.String("https://example.com/success"),
 	}
-	s, _ := session.New(params)
 
+	s, err := session.New(params)
+	if err != nil {
+		return "", internalError(err)
+	}
+
+	return s.ID, nil
+}
+
+// GetPaymentPlanTemplates is the resolver for the getPaymentPlanTemplates field.
+func (r *queryResolver) GetPaymentPlanTemplates(ctx context.Context) ([]*data.PaymentPlanTemplate, error) {
+	return data.GetPaymentPlanTemplates(), nil
 }
