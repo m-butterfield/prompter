@@ -26,12 +26,6 @@ func (st *PaymentPlanName) Value() (driver.Value, error) {
 	return string(*st), nil
 }
 
-type PaymentPlanTemplate struct {
-	Name          PaymentPlanName
-	Price         string
-	QueriesPerDay int
-}
-
 type PaymentPlan struct {
 	ID           string          `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
 	Name         PaymentPlanName `gorm:"type:payment_plan_name;not null"`
@@ -49,6 +43,12 @@ func (s *ds) CreatePaymentPlan(plan *PaymentPlan) error {
 		return tx.Error
 	}
 	return nil
+}
+
+type PaymentPlanTemplate struct {
+	Name          PaymentPlanName
+	Price         string
+	QueriesPerDay int
 }
 
 func GetPaymentPlanTemplates() []*PaymentPlanTemplate {

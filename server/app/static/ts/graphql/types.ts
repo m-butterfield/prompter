@@ -56,16 +56,10 @@ export type PaymentPlanTemplate = {
 
 export type Query = {
   __typename?: 'Query';
-  chat: Scalars['String'];
   getPaymentPlanTemplates: Array<PaymentPlanTemplate>;
   getUser: User;
   getUserStats: UserStats;
   me?: Maybe<User>;
-};
-
-
-export type QueryChatArgs = {
-  prompt: Scalars['String'];
 };
 
 
