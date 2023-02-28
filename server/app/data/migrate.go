@@ -9,6 +9,7 @@ func Migrate() error {
 		&AccessToken{},
 		&User{},
 		&Query{},
+		&PaymentPlan{},
 	)
 	if err != nil {
 		return err

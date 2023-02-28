@@ -41,6 +41,7 @@ type Store interface {
 	GetAccessTokenByQueryToken(queryToken string) (*AccessToken, error)
 	CreateQuery(query *Query) error
 	GetQueryCountForUser(id string, since *time.Time) (int, error)
+	CreatePaymentPlan(plan *PaymentPlan) error
 }
 
 type ds struct {

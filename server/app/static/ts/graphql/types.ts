@@ -21,6 +21,7 @@ export type LoginResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  getCheckoutSession: Scalars['String'];
   login?: Maybe<LoginResponse>;
   logout: Scalars['Boolean'];
 };
@@ -31,21 +32,34 @@ export type MutationCreateUserArgs = {
 };
 
 
+export type MutationGetCheckoutSessionArgs = {
+  paymentPlanName: PaymentPlanName;
+};
+
+
 export type MutationLoginArgs = {
   credential: Scalars['String'];
 };
 
+export enum PaymentPlanName {
+  Basic = 'Basic',
+  Premium = 'Premium',
+  Pro = 'Pro'
+}
+
+export type PaymentPlanTemplate = {
+  __typename?: 'PaymentPlanTemplate';
+  name: PaymentPlanName;
+  price: Scalars['String'];
+  queriesPerDay: Scalars['Int'];
+};
+
 export type Query = {
   __typename?: 'Query';
-  chat: Scalars['String'];
+  getPaymentPlanTemplates: Array<PaymentPlanTemplate>;
   getUser: User;
   getUserStats: UserStats;
   me?: Maybe<User>;
-};
-
-
-export type QueryChatArgs = {
-  prompt: Scalars['String'];
 };
 
 

@@ -50,16 +50,23 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateUser func(childComplexity int, input model.UserCreds) int
-		Login      func(childComplexity int, credential string) int
-		Logout     func(childComplexity int) int
+		CreateUser         func(childComplexity int, input model.UserCreds) int
+		GetCheckoutSession func(childComplexity int, paymentPlanName data.PaymentPlanName) int
+		Login              func(childComplexity int, credential string) int
+		Logout             func(childComplexity int) int
+	}
+
+	PaymentPlanTemplate struct {
+		Name          func(childComplexity int) int
+		Price         func(childComplexity int) int
+		QueriesPerDay func(childComplexity int) int
 	}
 
 	Query struct {
-		Chat         func(childComplexity int, prompt string) int
-		GetUser      func(childComplexity int, username string) int
-		GetUserStats func(childComplexity int) int
-		Me           func(childComplexity int) int
+		GetPaymentPlanTemplates func(childComplexity int) int
+		GetUser                 func(childComplexity int, username string) int
+		GetUserStats            func(childComplexity int) int
+		Me                      func(childComplexity int) int
 	}
 
 	User struct {
@@ -77,12 +84,13 @@ type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserCreds) (*data.User, error)
 	Logout(ctx context.Context) (bool, error)
 	Login(ctx context.Context, credential string) (*model.LoginResponse, error)
+	GetCheckoutSession(ctx context.Context, paymentPlanName data.PaymentPlanName) (string, error)
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*data.User, error)
 	GetUser(ctx context.Context, username string) (*data.User, error)
 	GetUserStats(ctx context.Context) (*model.UserStats, error)
-	Chat(ctx context.Context, prompt string) (string, error)
+	GetPaymentPlanTemplates(ctx context.Context) ([]*data.PaymentPlanTemplate, error)
 }
 
 type executableSchema struct {
@@ -126,6 +134,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(model.UserCreds)), true
 
+	case "Mutation.getCheckoutSession":
+		if e.complexity.Mutation.GetCheckoutSession == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_getCheckoutSession_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.GetCheckoutSession(childComplexity, args["paymentPlanName"].(data.PaymentPlanName)), true
+
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
 			break
@@ -145,17 +165,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.Logout(childComplexity), true
 
-	case "Query.chat":
-		if e.complexity.Query.Chat == nil {
+	case "PaymentPlanTemplate.name":
+		if e.complexity.PaymentPlanTemplate.Name == nil {
 			break
 		}
 
-		args, err := ec.field_Query_chat_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
+		return e.complexity.PaymentPlanTemplate.Name(childComplexity), true
+
+	case "PaymentPlanTemplate.price":
+		if e.complexity.PaymentPlanTemplate.Price == nil {
+			break
 		}
 
-		return e.complexity.Query.Chat(childComplexity, args["prompt"].(string)), true
+		return e.complexity.PaymentPlanTemplate.Price(childComplexity), true
+
+	case "PaymentPlanTemplate.queriesPerDay":
+		if e.complexity.PaymentPlanTemplate.QueriesPerDay == nil {
+			break
+		}
+
+		return e.complexity.PaymentPlanTemplate.QueriesPerDay(childComplexity), true
+
+	case "Query.getPaymentPlanTemplates":
+		if e.complexity.Query.GetPaymentPlanTemplates == nil {
+			break
+		}
+
+		return e.complexity.Query.GetPaymentPlanTemplates(childComplexity), true
 
 	case "Query.getUser":
 		if e.complexity.Query.GetUser == nil {
@@ -280,8 +316,24 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/chat.graphqls", Input: `extend type Query {
-  chat(prompt: String!): String!
+	{Name: "../schema/payment_plan.graphqls", Input: `enum PaymentPlanName {
+  Basic
+  Pro
+  Premium
+}
+
+type PaymentPlanTemplate {
+  name: PaymentPlanName!
+  price: String!
+  queriesPerDay: Int!
+}
+
+extend type Query {
+  getPaymentPlanTemplates: [PaymentPlanTemplate!]!
+}
+
+extend type Mutation {
+  getCheckoutSession(paymentPlanName: PaymentPlanName!): String!
 }
 `, BuiltIn: false},
 	{Name: "../schema/user.graphqls", Input: `type User {
@@ -338,6 +390,21 @@ func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_getCheckoutSession_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 data.PaymentPlanName
+	if tmp, ok := rawArgs["paymentPlanName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("paymentPlanName"))
+		arg0, err = ec.unmarshalNPaymentPlanName2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanName(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["paymentPlanName"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -365,21 +432,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_chat_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["prompt"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("prompt"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["prompt"] = arg0
 	return args, nil
 }
 
@@ -690,6 +742,192 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_getCheckoutSession(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_getCheckoutSession(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().GetCheckoutSession(rctx, fc.Args["paymentPlanName"].(data.PaymentPlanName))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_getCheckoutSession(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_getCheckoutSession_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaymentPlanTemplate_name(ctx context.Context, field graphql.CollectedField, obj *data.PaymentPlanTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaymentPlanTemplate_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(data.PaymentPlanName)
+	fc.Result = res
+	return ec.marshalNPaymentPlanName2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanName(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaymentPlanTemplate_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaymentPlanTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PaymentPlanName does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaymentPlanTemplate_price(ctx context.Context, field graphql.CollectedField, obj *data.PaymentPlanTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaymentPlanTemplate_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaymentPlanTemplate_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaymentPlanTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PaymentPlanTemplate_queriesPerDay(ctx context.Context, field graphql.CollectedField, obj *data.PaymentPlanTemplate) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PaymentPlanTemplate_queriesPerDay(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.QueriesPerDay, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PaymentPlanTemplate_queriesPerDay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PaymentPlanTemplate",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_me(ctx, field)
 	if err != nil {
@@ -845,8 +1083,8 @@ func (ec *executionContext) fieldContext_Query_getUserStats(ctx context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_chat(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_chat(ctx, field)
+func (ec *executionContext) _Query_getPaymentPlanTemplates(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getPaymentPlanTemplates(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -859,7 +1097,7 @@ func (ec *executionContext) _Query_chat(ctx context.Context, field graphql.Colle
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Chat(rctx, fc.Args["prompt"].(string))
+		return ec.resolvers.Query().GetPaymentPlanTemplates(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -870,31 +1108,28 @@ func (ec *executionContext) _Query_chat(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.([]*data.PaymentPlanTemplate)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNPaymentPlanTemplate2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanTemplateᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_chat(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getPaymentPlanTemplates(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			switch field.Name {
+			case "name":
+				return ec.fieldContext_PaymentPlanTemplate_name(ctx, field)
+			case "price":
+				return ec.fieldContext_PaymentPlanTemplate_price(ctx, field)
+			case "queriesPerDay":
+				return ec.fieldContext_PaymentPlanTemplate_queriesPerDay(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PaymentPlanTemplate", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_chat_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -3090,11 +3325,59 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_login(ctx, field)
 			})
 
+		case "getCheckoutSession":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_getCheckoutSession(ctx, field)
+			})
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
 	out.Dispatch()
+	return out
+}
+
+var paymentPlanTemplateImplementors = []string{"PaymentPlanTemplate"}
+
+func (ec *executionContext) _PaymentPlanTemplate(ctx context.Context, sel ast.SelectionSet, obj *data.PaymentPlanTemplate) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, paymentPlanTemplateImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PaymentPlanTemplate")
+		case "name":
+
+			out.Values[i] = ec._PaymentPlanTemplate_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "price":
+
+			out.Values[i] = ec._PaymentPlanTemplate_price(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "queriesPerDay":
+
+			out.Values[i] = ec._PaymentPlanTemplate_queriesPerDay(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
 	return out
 }
 
@@ -3176,7 +3459,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "chat":
+		case "getPaymentPlanTemplates":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -3185,7 +3468,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_chat(ctx, field)
+				res = ec._Query_getPaymentPlanTemplates(ctx, field)
 				return res
 			}
 
@@ -3632,6 +3915,76 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNPaymentPlanName2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanName(ctx context.Context, v interface{}) (data.PaymentPlanName, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := data.PaymentPlanName(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPaymentPlanName2githubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanName(ctx context.Context, sel ast.SelectionSet, v data.PaymentPlanName) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNPaymentPlanTemplate2ᚕᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanTemplateᚄ(ctx context.Context, sel ast.SelectionSet, v []*data.PaymentPlanTemplate) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNPaymentPlanTemplate2ᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanTemplate(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNPaymentPlanTemplate2ᚖgithubᚗcomᚋmᚑbutterfieldᚋprompterᚋserverᚋappᚋdataᚐPaymentPlanTemplate(ctx context.Context, sel ast.SelectionSet, v *data.PaymentPlanTemplate) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PaymentPlanTemplate(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
