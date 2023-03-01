@@ -26,9 +26,12 @@ chrome.management.getSelf((result) => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "prompter" || info.menuItemId === "prompter-copy") {
     const selectionText = info.selectionText;
-    chrome.tabs.sendMessage(tab.id, {
-      appURL,
-      selectionText: selectionText ? selectionText : "",
+    chrome.storage.sync.get("queryToken", (result) => {
+      chrome.tabs.sendMessage(tab.id, {
+        appURL,
+        selectionText: selectionText ? selectionText : "",
+        queryToken: result.queryToken || "",
+      });
     });
   }
 });
