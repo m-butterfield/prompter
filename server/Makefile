@@ -17,6 +17,7 @@ docker-push:
 
 fmt:
 	go fmt ./...
+	staticcheck ./...
 	yarn prettier --loglevel warn --write .
 	cd infra/ && terraform fmt
 
