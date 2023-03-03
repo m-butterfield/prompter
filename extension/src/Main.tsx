@@ -47,8 +47,8 @@ export const Main = ({ appURL, selectionText, queryToken }: MainProps) => {
     let result = "";
     source.onmessage = (event) => {
       const msg = event.data.replace(/^"(.*)"$/s, "$1"); // somehow leading whitespace was being stripped from the messages returned, so they are wrapped in quotes now on the BE
-      // skip leading spaces
-      if (result === "" && msg === "\n") {
+      // skip leading whitespace at the very beginning of the message
+      if (/^\s*$/.test(result) && /^\s*$/.test(msg)) {
         return;
       }
       result += msg;
