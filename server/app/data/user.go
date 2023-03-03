@@ -15,7 +15,7 @@ type User struct {
 
 func (s *ds) CreateUser(user *User) error {
 	if user.DailyQueries == 0 {
-		user.DailyQueries = 12
+		user.DailyQueries = 20
 	}
 	if tx := s.db.Create(user); tx.Error != nil {
 		return tx.Error
