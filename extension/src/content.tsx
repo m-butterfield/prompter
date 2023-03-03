@@ -1,3 +1,4 @@
+import "./MuiClassNameSetup";
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/react";
 import { ThemeProvider } from "@mui/material/styles";
