@@ -60,16 +60,21 @@ func streamChat(c *gin.Context, prompt string, username string) {
 	gpt := gogpt.NewClient(os.Getenv("OPENAI_API_KEY"))
 	ctx := context.Background()
 
-	req := gogpt.CompletionRequest{
-		Model:       gogpt.GPT3TextDavinci003,
+	req := gogpt.ChatCompletionRequest{
+		Model:       gogpt.GPT3Dot5Turbo,
 		Temperature: 0.3,
-		MaxTokens:   512,
-		Prompt:      prompt,
-		Stream:      true,
-		User:        username,
+		MaxTokens:   1024,
+		Messages: []gogpt.ChatCompletionMessage{
+			{
+				Content: prompt,
+				Role:    "user",
+			},
+		},
+		Stream: true,
+		User:   username,
 	}
 
-	stream, err := gpt.CreateCompletionStream(ctx, req)
+	stream, err := gpt.CreateChatCompletionStream(ctx, req)
 	if err != nil {
 		lib.InternalError(err, c)
 		return
@@ -90,7 +95,7 @@ func streamChat(c *gin.Context, prompt string, username string) {
 				return
 			}
 			if len(response.Choices) > 0 {
-				chanStream <- response.Choices[0].Text
+				chanStream <- response.Choices[0].Delta.Content
 			}
 		}
 	}()
