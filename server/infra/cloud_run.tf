@@ -40,8 +40,11 @@ resource "google_cloud_run_service" "prompter" {
         "autoscaling.knative.dev/maxScale"      = "100"
         "client.knative.dev/user-image"         = "gcr.io/mattbutterfield/prompter"
         "run.googleapis.com/client-name"        = "gcloud"
-        "run.googleapis.com/client-version"     = "417.0.1"
+        "run.googleapis.com/client-version"     = "440.0.0"
         "autoscaling.knative.dev/minScale"      = "1"
+      }
+      labels = {
+        "run.googleapis.com/startupProbeType" = "Default"
       }
     }
   }

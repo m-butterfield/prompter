@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/m-butterfield/prompter/server/app/data"
 	"github.com/m-butterfield/prompter/server/app/lib"
-	gogpt "github.com/sashabaranov/go-gpt3"
+	"github.com/sashabaranov/go-openai"
 	"io"
 	"os"
 	"time"
@@ -57,14 +57,14 @@ func chat(c *gin.Context) {
 }
 
 func streamChat(c *gin.Context, prompt string, username string) {
-	gpt := gogpt.NewClient(os.Getenv("OPENAI_API_KEY"))
+	gpt := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
 	ctx := context.Background()
 
-	req := gogpt.ChatCompletionRequest{
-		Model:       gogpt.GPT3Dot5Turbo,
+	req := openai.ChatCompletionRequest{
+		Model:       openai.GPT3Dot5Turbo,
 		Temperature: 0.3,
 		MaxTokens:   1024,
-		Messages: []gogpt.ChatCompletionMessage{
+		Messages: []openai.ChatCompletionMessage{
 			{
 				Content: prompt,
 				Role:    "user",
