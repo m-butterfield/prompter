@@ -29,3 +29,4 @@ Change to 'server' directory:
 ## Run webpack
 
     make run-webpack
+
