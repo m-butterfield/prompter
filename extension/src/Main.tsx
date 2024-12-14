@@ -17,7 +17,7 @@ export const Main = ({ appURL, selectionText, queryToken }: MainProps) => {
   const [promptInput, setPromptInput] = useState(selectionText);
   const [loading, setLoading] = useState(false);
   const [promptResult, setPromptResult] = useState("");
-  const copyButtonRef = useRef<HTMLButtonElement>();
+  const copyButtonRef = useRef<HTMLButtonElement>(null);
   const [queryInfo, setQueryInfo] = useState<QueryInfo>();
   const [queryInfoError, setQueryInfoError] = useState(false);
 
@@ -42,7 +42,7 @@ export const Main = ({ appURL, selectionText, queryToken }: MainProps) => {
     setLoading(true);
     setPromptResult("");
     const source = new EventSource(
-      `${appURL}/chat?p=${encodeURIComponent(promptInput)}&t=${queryToken}`
+      `${appURL}/chat?p=${encodeURIComponent(promptInput)}&t=${queryToken}`,
     );
     let result = "";
     source.onmessage = (event) => {
@@ -67,7 +67,7 @@ export const Main = ({ appURL, selectionText, queryToken }: MainProps) => {
   };
 
   // hack to ensure input has focus since we are in a shadow dom, see inputRef on TextField below
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     const timeout = setTimeout(() => {
       inputRef.current?.focus();

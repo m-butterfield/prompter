@@ -6,13 +6,13 @@ import Link from "@mui/material/Link";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import React, { MutableRefObject, useState } from "react";
+import React, { RefObject, useState } from "react";
 import { QueryInfo } from "types";
 import { setGlobalModalOpen } from "utils";
 
 type PrompterDialogContentProps = {
-  inputRef: MutableRefObject<HTMLInputElement>;
-  copyButtonRef: MutableRefObject<HTMLButtonElement>;
+  inputRef: RefObject<HTMLInputElement>;
+  copyButtonRef: RefObject<HTMLButtonElement>;
   loading: boolean;
   promptInput: string;
   setPromptInput: (v: string) => void;
@@ -119,7 +119,7 @@ export const PrompterDialogContent = ({
       <Typography whiteSpace="pre-wrap">{promptResult}</Typography>
       <DialogActions>
         <Button
-          ref={(el) => (copyButtonRef.current = el)}
+          ref={copyButtonRef}
           onClick={() => {
             navigator.clipboard.writeText(promptResult);
           }}
